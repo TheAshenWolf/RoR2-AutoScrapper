@@ -69,6 +69,9 @@ public class AutoScrapperConfig
         CreateItemGroupConfigs("Yellow Items", yellowItems, yellowItemConfig);
         
         _limits = new Dictionary<ItemIndex, int>(whiteItems.Length + greenItems.Length + redItems.Length + yellowItems.Length);
+
+        // When the game initializes, the config cache is empty. We need to call OnConfigReloaded manually to fill it.
+        OnConfigReloaded(null, null);
     }
     
     private void BindEvents()
@@ -108,7 +111,7 @@ public class AutoScrapperConfig
             ItemDef item = ItemCatalog.GetItemDef(items[i]);
 
             // Then we create a config entry for each item. We do not use translation here as this needs to be persistent for everyone regardless of locale.
-            itemConfig[item.itemIndex] = _config.Bind(section, item.nameToken, -1, GetDescription(item));
+            itemConfig[item.itemIndex] = _config.Bind(section, item.name, -1, GetDescription(item));
         }
     }
 
@@ -128,6 +131,8 @@ public class AutoScrapperConfig
     {
         // First we need to clear the limits dictionary
         _limits.Clear();
+
+        // Then we update the limits for each item
         foreach ((ItemIndex key, ConfigEntry<int> _) in whiteItemConfig)
         {
             _limits[key] = whiteItemConfig.TryGetValue(key, out ConfigEntry<int> entry) ? entry.Value : -1;

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
 using BepInEx;
-using EntityStates.Scrapper;
-using MonoMod.RuntimeDetour;
 using R2API;
 using RoR2;
 using PickupPickerController = On.RoR2.PickupPickerController;
@@ -35,8 +30,8 @@ namespace ExamplePlugin
         /// </summary>
         private void Awake()
         {
-            On.EntityStates.Scrapper.Scrapping.OnEnter += Scrapping_OnEnter; // TODO: This is actually not being called
             On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
+            On.RoR2.PickupPickerController.OnDisplayBegin += PickupPickerPanel_OnDisplayBegin;
         }
 
         /// <summary>
@@ -44,42 +39,46 @@ namespace ExamplePlugin
         /// </summary>
         private void OnDestroy()
         {
-            On.EntityStates.Scrapper.Scrapping.OnEnter -= Scrapping_OnEnter;
             On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
+            On.RoR2.PickupPickerController.OnDisplayBegin -= PickupPickerPanel_OnDisplayBegin;
             config?.OnDestroy();
         }
 
         /// <summary>
-        /// Called when the player opens a scrapper.
-        /// Scraps all items in the player's inventory that are above the limit set in the config.
+        /// This method is getting called whenever a selection UI (like the one scrapper uses) is opened.
+        /// All we need from it is to know when it was opened (the call in general) and who opened it (LocalUser).
         /// </summary>
-        private void Scrapping_OnEnter(On.EntityStates.Scrapper.Scrapping.orig_OnEnter orig, Scrapping self)
+        private void PickupPickerPanel_OnDisplayBegin(PickupPickerController.orig_OnDisplayBegin orig,
+            RoR2.PickupPickerController pickupPickerController, NetworkUIPromptController networkUIPromptController,
+            LocalUser user, CameraRigController cameraRigController)
         {
-            // TODO: This is most likely not correct. I need to find a better way to detect when the scrapper is opened.
-            LocalUser localUser = LocalUserManager.GetFirstLocalUser();
-            
+            // TODO: This gets called in every item selection, doesn't it?
+            // TODO: Check if it is actually a scrapper.
+
             // Get the player's inventory
-            Inventory inventory = localUser.cachedBody.inventory;
-            for (int i = 0, count = inventory.itemAcquisitionOrder.Count; i < count; i++)
+            Inventory inventory = user.cachedBody.inventory;
+
+            // We have to go backwards, as Removing an item actually removes it from the array.
+            // This is not exactly performance friendly, but it works.
+            // Sadly, we cannot really change that.
+            for (int i = inventory.itemAcquisitionOrder.Count - 1; i >= 0; i--)
             {
-                // itemAcquisitionOrder and itemStacks are two arrays representing which item corresponds to which stack.
-                // We have to map both of these items to know how much of which item is present.
-                int itemCount = inventory.itemStacks[i];
-        
-                // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
-                if (itemCount == 0) continue;
-                
-                // However, we want to access the array as late as possible.
-                // We don't need to check the id if there are no items anyway.
+                // itemAcquisitionOrder tells us which items we need to check.
+                // By using GetItemCount, we can check how many items of the given type we have.
                 ItemIndex itemId = inventory.itemAcquisitionOrder[i];
-        
+                int itemCount = inventory.GetItemCount(itemId);
+
+                // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
+                if (itemCount == 0)
+                    continue;
+
                 // We get the limit from the config
                 int itemLimit = config.GetLimit(itemId);
-                
+
                 // If the limit is -1, we don't scrap the item.
                 if (itemLimit == -1)
                     continue;
-                
+
                 // Lastly, we check if the item count is higher than the limit...
                 if (itemLimit < itemCount)
                 {
@@ -87,6 +86,10 @@ namespace ExamplePlugin
                     ScrapItem(inventory, itemId, itemCount - itemLimit);
                 }
             }
+
+            // TODO: If we call this here, the scrapper displays the items that were just scrapped.
+            // TODO: We should probably check for the scrapper interaction itself and call that if we scrapped anything.
+            orig(pickupPickerController, networkUIPromptController, user, cameraRigController);
         }
 
         /// <summary>
