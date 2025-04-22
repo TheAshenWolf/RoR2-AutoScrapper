@@ -1,9 +1,23 @@
-# R2Boilerplate
+# Auto Scrapper
 
-This repository contains a sample mod for Risk of Rain 2.
+Tired of scrapping the same item on every single scrapper? Now you can set limits for each item and see the magic automagically remove the items you don't want.
 
-You can clone this repository, open the visual studio solution file and compile it immediately.
+## Roadmap
 
-This repository is meant to represent best practices for starting a simple mod.
+General:
+- [ ] Add dependencies
 
-Once your mod get compiled, you can utilize the Thunderstore folder for later uploading it to https://thunderstore.io/c/riskofrain2/
+Config:
+- [ ] Dynamic config with all items with settable limits
+
+Scrapping:
+- [ ] Skip items where the limit is 0
+- [ ] All items over the limit scrapped on scrapper interact
+
+Check:
+- [ ] Multiplayer Compatibility
+  - [ ] Scraps according to local player's config
+  - [ ] Scraps only local player's items
+
+Bonus features:
+- [ ] Make config overrideable per character
