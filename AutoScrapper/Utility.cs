@@ -1,6 +1,6 @@
 using RoR2;
 
-namespace ExamplePlugin;
+namespace AutoScrapper;
 
 /// <summary>
 /// Class containing static utility methods.

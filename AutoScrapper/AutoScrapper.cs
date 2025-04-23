@@ -3,7 +3,7 @@ using R2API;
 using RoR2;
 using PickupPickerController = On.RoR2.PickupPickerController;
 
-namespace ExamplePlugin
+namespace AutoScrapper
 {
     /// <summary>
     /// Default setup for the plugin
@@ -49,11 +49,15 @@ namespace ExamplePlugin
         /// All we need from it is to know when it was opened (the call in general) and who opened it (LocalUser).
         /// </summary>
         private void PickupPickerPanel_OnDisplayBegin(PickupPickerController.orig_OnDisplayBegin orig,
-            RoR2.PickupPickerController pickupPickerController, NetworkUIPromptController networkUIPromptController,
+            RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController,
             LocalUser user, CameraRigController cameraRigController)
         {
-            // TODO: This gets called in every item selection, doesn't it?
-            // TODO: Check if it is actually a scrapper.
+            // If we are not in a scrapper, we do nothing -> run orig as normal
+            if (!self.name.StartsWith("Scrapper"))
+            {
+                orig(self, networkUIPromptController, user, cameraRigController);
+                return;
+            }
 
             // Get the player's inventory
             Inventory inventory = user.cachedBody.inventory;
