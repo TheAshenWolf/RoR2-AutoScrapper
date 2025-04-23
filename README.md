@@ -8,11 +8,14 @@ General:
 - [ ] Add dependencies
 
 Config:
-- [ ] Dynamic config with all items with settable limits
+- [x] Dynamic config with all items with settable limits
+- [ ] Default value overrides - for example for goggles
 
 Scrapping:
-- [ ] Skip items where the limit is 0
-- [ ] All items over the limit scrapped on scrapper interact
+- [x] Skip items where the limit is 0
+- [x] All items over the limit scrapped on scrapper interact
+- [ ] UI shows only the remaining items
+- [ ] Chat message announces how many items were scrapped
 
 Check:
 - [ ] Multiplayer Compatibility
@@ -20,5 +23,5 @@ Check:
   - [ ] Scraps only local player's items
 
 Bonus features:
-- [ ] Make config overrideable per character
+- [ ] Make config overrideable per character?
 - [ ] Integrate with Risk of Options
