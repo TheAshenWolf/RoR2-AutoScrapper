@@ -23,7 +23,11 @@ namespace AutoScrapper
         // We use a dictionary to cache the limits for each item
         // This way we don't need to access the config file every time we open a scrapper
         private Dictionary<ItemIndex, int> _limits;
-
+        
+        // General configuration
+        ConfigEntry<bool> _keepScrapperClosedConfig;
+        
+        // We use these arrays to store the items for each tier
         public ItemIndex[] whiteItems;
         public ItemIndex[] greenItems;
         public ItemIndex[] redItems;
@@ -52,6 +56,11 @@ namespace AutoScrapper
             // We create the config file
             _config = new ConfigFile(Paths.ConfigPath + "\\TheAshenWolf.AutoScrapper.cfg", true);
 
+            // Generic mod settings
+            _keepScrapperClosedConfig = _config.Bind("General", "KeepScrapperClosed", true,
+                new ConfigDescription("If this setting is enabled, the scrapper will not open if it automatically scrapped items. \n"
+                                      + "You can always open it with a second interaction."));
+            
             // First we gather all white items
             whiteItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(whiteItems.Length);
             CreateItemGroupConfigs("White Items", whiteItems, whiteItemConfig);
@@ -81,6 +90,10 @@ namespace AutoScrapper
             _config.ConfigReloaded += OnConfigReloaded;
         }
 
+        /// <summary>
+        /// We need to unbind the event when the mod is destroyed
+        /// As this class is a custom one, we need this public so we can call it from <see cref="AutoScrapper"/>
+        /// </summary>
         public void OnDestroy()
         {
             // Unbind the event to prevent memory leaks
@@ -100,6 +113,12 @@ namespace AutoScrapper
                 .ToArray();
         }
 
+        /// <summary>
+        /// To avoid code repetition, this method creates a config entry for each item in the given section.
+        /// </summary>
+        /// <param name="section">Name of the section - same for each entry</param>
+        /// <param name="items">An array of item ids. This method looks up required information itself</param>
+        /// <param name="itemConfig">Link to an existing dictionary with the config. We save config data here</param>
         private void CreateItemGroupConfigs(string section, ItemIndex[] items,
             Dictionary<ItemIndex, ConfigEntry<int>> itemConfig)
         {
@@ -121,6 +140,15 @@ namespace AutoScrapper
             }
         }
 
+        /// <summary>
+        /// To help with readability, this method creates an identical description for each item.
+        /// <example>
+        /// [name] amount to keep before scrapping. <br/>
+        /// > [item_description] <br/>
+        /// 0 = scrap all, -1 = don't scrap
+        /// </example>
+        /// </summary>
+        /// <param name="item">The item definition to use in description creation</param>
         private ConfigDescription GetDescription(ItemDef item)
         {
             return new ConfigDescription(
@@ -167,5 +195,11 @@ namespace AutoScrapper
         {
             return _limits.GetValueOrDefault(index, -1);
         }
+        
+        /// <summary>
+        /// Gets the config entry for whether the scrapper should remain closed after
+        /// automatically scrapping.
+        /// </summary>
+        public bool KeepScrapperClosed => _keepScrapperClosedConfig.Value;
     }
 }

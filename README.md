@@ -10,11 +10,12 @@ General:
 Config:
 - [x] Dynamic config with all items with settable limits
 - [ ] Default value overrides - for example for goggles
+- [x] User can determine whether to keep scrapper closed after automatic scrapping
 
 Scrapping:
 - [x] Skip items where the limit is 0
 - [x] All items over the limit scrapped on scrapper interact
-- [ ] UI shows only the remaining items
+- [x] UI shows only the remaining items
 - [ ] Chat message announces how many items were scrapped
 
 Check:

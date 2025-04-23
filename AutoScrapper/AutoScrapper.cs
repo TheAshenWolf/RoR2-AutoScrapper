@@ -44,6 +44,11 @@ namespace AutoScrapper
             config?.OnDestroy();
         }
 
+        /// <summary>
+        /// Called when the user successfully interacts with an interactable object.
+        /// We only care about the scrapper, which is why we check for the name as the first thing.
+        /// interactable.name is the name of the GameObject, so it doesn't fall under localization.
+        /// </summary>
         private void Interactor_PerformInteraction(On.RoR2.Interactor.orig_PerformInteraction orig, Interactor self,
             GameObject interactable)
         {
@@ -88,12 +93,9 @@ namespace AutoScrapper
                     itemScrapped |= ScrapItem(inventory, itemId, itemCount - itemLimit);
                 }
 
-                // TODO: Config - if "don't open on scrap" return;
-//                if (itemScrapped)
-//                {
-//                    Debug.LogError("AutoScrapper: Scrapped items automatically. Closing scrapper.");
-//                    return;
-//                }
+                // If an item was scrapped and the config says to keep the scrapper closed, we return here.
+                if (itemScrapped && config.KeepScrapperClosed)
+                    return;
             }
 
             // Open the scrapper as normal.
