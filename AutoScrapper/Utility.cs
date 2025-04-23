@@ -26,6 +26,17 @@ public static class Utility
     }
 
     /// <summary>
+    /// Returns whether the given ItemIndex is a scrap item. <br/>
+    /// </summary>
+    public static bool IsScrap(ItemIndex index)
+    {
+        return index == RoR2Content.Items.ScrapWhite.itemIndex ||
+               index == RoR2Content.Items.ScrapGreen.itemIndex ||
+               index == RoR2Content.Items.ScrapRed.itemIndex ||
+               index == RoR2Content.Items.ScrapYellow.itemIndex;
+    }
+
+    /// <summary>
     /// Removes all tags from the given string to remove formatting used in-game.<br/>
     /// </summary>
     public static string Sanitize(this string text)

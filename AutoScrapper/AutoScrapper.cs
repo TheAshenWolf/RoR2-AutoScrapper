@@ -1,7 +1,7 @@
 using BepInEx;
 using R2API;
 using RoR2;
-using PickupPickerController = On.RoR2.PickupPickerController;
+using UnityEngine;
 
 namespace AutoScrapper
 {
@@ -31,7 +31,7 @@ namespace AutoScrapper
         private void Awake()
         {
             On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
-            On.RoR2.PickupPickerController.OnDisplayBegin += PickupPickerPanel_OnDisplayBegin;
+            On.RoR2.Interactor.PerformInteraction += Interactor_PerformInteraction;
         }
 
         /// <summary>
@@ -40,60 +40,64 @@ namespace AutoScrapper
         private void OnDestroy()
         {
             On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
-            On.RoR2.PickupPickerController.OnDisplayBegin -= PickupPickerPanel_OnDisplayBegin;
+            On.RoR2.Interactor.PerformInteraction -= Interactor_PerformInteraction;
             config?.OnDestroy();
         }
 
-        /// <summary>
-        /// This method is getting called whenever a selection UI (like the one scrapper uses) is opened.
-        /// All we need from it is to know when it was opened (the call in general) and who opened it (LocalUser).
-        /// </summary>
-        private void PickupPickerPanel_OnDisplayBegin(PickupPickerController.orig_OnDisplayBegin orig,
-            RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController,
-            LocalUser user, CameraRigController cameraRigController)
+        private void Interactor_PerformInteraction(On.RoR2.Interactor.orig_PerformInteraction orig, Interactor self,
+            GameObject interactable)
         {
-            // If we are not in a scrapper, we do nothing -> run orig as normal
-            if (!self.name.StartsWith("Scrapper"))
+            if (interactable.name.StartsWith("Scrapper"))
             {
-                orig(self, networkUIPromptController, user, cameraRigController);
-                return;
-            }
-
-            // Get the player's inventory
-            Inventory inventory = user.cachedBody.inventory;
-
-            // We have to go backwards, as Removing an item actually removes it from the array.
-            // This is not exactly performance friendly, but it works.
-            // Sadly, we cannot really change that.
-            for (int i = inventory.itemAcquisitionOrder.Count - 1; i >= 0; i--)
-            {
-                // itemAcquisitionOrder tells us which items we need to check.
-                // By using GetItemCount, we can check how many items of the given type we have.
-                ItemIndex itemId = inventory.itemAcquisitionOrder[i];
-                int itemCount = inventory.GetItemCount(itemId);
-
-                // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
-                if (itemCount == 0)
-                    continue;
-
-                // We get the limit from the config
-                int itemLimit = config.GetLimit(itemId);
-
-                // If the limit is -1, we don't scrap the item.
-                if (itemLimit == -1)
-                    continue;
-
-                // Lastly, we check if the item count is higher than the limit...
-                if (itemLimit < itemCount)
+                CharacterBody localBody = self.GetComponent<CharacterBody>();
+                if (localBody == null)
                 {
-                    // ... and scrap items over the limit if the limit is lower than the amount of items in the inventory.
-                    ScrapItem(inventory, itemId, itemCount - itemLimit);
+                    Debug.LogWarning("AutoScrapper: Local body is null. Cannot scrap items automatically.");
+                    orig(self, interactable);
+                    return;
                 }
+
+                // Get the player's inventory
+                Inventory inventory = localBody.inventory;
+
+                // We track whether an item was scrapped or not.
+                bool itemScrapped = false;
+
+                // We have to go backwards, as Removing an item actually removes it from the array.
+                // This is not exactly performance friendly, but it works.
+                // Sadly, we cannot really change that.
+                for (int i = inventory.itemAcquisitionOrder.Count - 1; i >= 0; i--)
+                {
+                    // itemAcquisitionOrder tells us which items we need to check.
+                    // By using GetItemCount, we can check how many items of the given type we have.
+                    ItemIndex itemId = inventory.itemAcquisitionOrder[i];
+                    int itemCount = inventory.GetItemCount(itemId);
+
+                    // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
+                    if (itemCount == 0)
+                        continue;
+
+                    // We get the limit from the config
+                    int itemLimit = config.GetLimit(itemId);
+
+                    // If the limit is -1, we don't scrap the item.
+                    if (itemLimit == -1)
+                        continue;
+
+                    // If the item count is less than or equal to the limit, we scrap it.
+                    itemScrapped |= ScrapItem(inventory, itemId, itemCount - itemLimit);
+                }
+
+                // TODO: Config - if "don't open on scrap" return;
+//                if (itemScrapped)
+//                {
+//                    Debug.LogError("AutoScrapper: Scrapped items automatically. Closing scrapper.");
+//                    return;
+//                }
             }
 
-            // TODO: If we call this here, the scrapper displays the items that were just scrapped.
-            // TODO: We should probably check for the scrapper interaction itself and call that if we scrapped anything.
-            orig(pickupPickerController, networkUIPromptController, user, cameraRigController);
+            // Open the scrapper as normal.
+            orig(self, interactable);
         }
 
         /// <summary>
@@ -102,18 +106,27 @@ namespace AutoScrapper
         /// <param name="playerInventory">Inventory to take items from</param>
         /// <param name="itemIndex">The item to scrap</param>
         /// <param name="count">Amount of the item to scrap</param>
-        private void ScrapItem(Inventory playerInventory, ItemIndex itemIndex, int count)
+        /// <returns>True if an item was scrapped</returns>
+        private bool ScrapItem(Inventory playerInventory, ItemIndex itemIndex, int count)
         {
+            // If there is nothing to scrap (or we somehow got a negative number), we can't scrap it.
+            if (count <= 0)
+                return false;
+
+            // If the item is a scrap item, we can't scrap it.
+            if (Utility.IsScrap(itemIndex))
+                return false;
+
             // First we need to get the item definition to find out the tier of the item, which determines the scrap type.
             ItemDef itemDef = ItemCatalog.GetItemDef(itemIndex);
 
             // If the item cannot be removed, we can't scrap it.
             if (!itemDef.canRemove)
-                return;
+                return false;
 
             // If the item is consumed, we can't scrap it.
             if (itemDef.isConsumed)
-                return;
+                return false;
 
             // We get the item tier (we don't need to get it if the previous checks failed).
             ItemTier itemTier = itemDef.tier;
@@ -123,12 +136,15 @@ namespace AutoScrapper
 
             // Scrap index being None means the item is of a tier that cannot be scrapped.
             if (scrapIndex == ItemIndex.None)
-                return;
+                return false;
 
             // We remove the item from the player's inventory - only if everything else succeeded.
             playerInventory.RemoveItem(itemIndex, count);
             // Then we give the player the scrap item for the given tier.
             playerInventory.GiveItem(scrapIndex, count);
+
+            // We return true to indicate that we scrapped an item.
+            return true;
         }
 
         /// <summary>
