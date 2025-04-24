@@ -10,6 +10,7 @@ namespace AutoScrapper
     /// </summary>
     [BepInDependency(ItemAPI.PluginGUID)]
     [BepInDependency(LanguageAPI.PluginGUID)]
+    [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class AutoScrapper : BaseUnityPlugin
     {
@@ -22,7 +23,7 @@ namespace AutoScrapper
         public const string PLUGIN_NAME = "AutoScrapper";
         public const string PLUGIN_VERSION = "0.0.1";
 
-        // Link to the plugin's config file
+        /// Link to the plugin's config file
         public AutoScrapperConfig config;
 
         /// <summary>

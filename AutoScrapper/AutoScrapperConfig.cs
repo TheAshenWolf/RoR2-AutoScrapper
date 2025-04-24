@@ -60,6 +60,8 @@ namespace AutoScrapper
             _keepScrapperClosedConfig = _config.Bind("General", "KeepScrapperClosed", true,
                 new ConfigDescription("If this setting is enabled, the scrapper will not open if it automatically scrapped items. \n"
                                       + "You can always open it with a second interaction."));
+            if (RiskOfOptionsCompatibility.Enabled)
+                RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
             
             // First we gather all white items
             whiteItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(whiteItems.Length);
@@ -136,7 +138,10 @@ namespace AutoScrapper
                     continue;
 
                 // Then we create a config entry for each item. We do not use translation here as this needs to be persistent for everyone regardless of locale.
-                itemConfig[item.itemIndex] = _config.Bind(section, item.name, -1, GetDescription(item));
+                ConfigEntry<int> config = _config.Bind(section, item.name, -1, GetDescription(item));
+                itemConfig[item.itemIndex] = config;
+                if (RiskOfOptionsCompatibility.Enabled)
+                    RiskOfOptionsCompatibility.AddIntOption(config);
             }
         }
 
