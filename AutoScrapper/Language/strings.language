@@ -1,11 +1,5 @@
 {
   "strings": {
-    "AUTO_SCRAPPER_ITEMS_WHITE": "White Items",
-    "AUTO_SCRAPPER_ITEMS_GREEN": "Green Items",
-    "AUTO_SCRAPPER_ITEMS_RED": "Red Items",
-    "AUTO_SCRAPPER_ITEMS_YELLOW": "Yellow Items",
-    "AUTO_SCRAPPER_GENERAL": "General",
-    "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED": "Keep Scrapper Closed",
-    "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_DESC": "If any items were scrapped automatically, the scrapper won't be opened. You can always interact again to open it.",
-  }
+    "AUTO_SCRAPPER_MOD_DESCRIPTION": "Ever felt tired of scrapping the same item over an over again at every scrapper? /n Well fret no more, as AutoScrapper is here to save your time. Simply set a limit for every item in the config and let the automagic happen."
+    }
 }
