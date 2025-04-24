@@ -37,17 +37,19 @@ public static class Utility
     }
 
     /// <summary>
-    /// Removes all tags from the given string to remove formatting used in-game.<br/>
+    /// Returns a translated name of the item with the color corresponding to its tier.
     /// </summary>
-    public static string Sanitize(this string text)
+    public static string GetFormattedName(ItemDef item)
     {
-        // Remove everything within <> tags, including the tags themselves, for every occurrence
-        // and replace it with an empty string.
-        text = System.Text.RegularExpressions.Regex.Replace(text, "<.*?>", string.Empty);
+        string color = item.tier switch
+        {
+                ItemTier.Tier1 => "<color=#FFFFFF>",
+                ItemTier.Tier2 => "<color=#00FF00>",
+                ItemTier.Tier3 => "<color=#FF0000>",
+                ItemTier.Boss => "<color=#FFFF00>",
+                _ => "<color=#FFFFFF>"
+        };
         
-        // Remove new lines
-        text = text.Replace("\n", string.Empty);
-
-        return text;
+        return $"{color}{Language.GetString(item.nameToken)}</color>";
     }
 }

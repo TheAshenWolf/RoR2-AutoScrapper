@@ -40,6 +40,11 @@ namespace AutoScrapper
         {
             SetupConfig();
             BindEvents();
+
+            if (RiskOfOptionsCompatibility.Enabled)
+            {
+                RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
+            }
         }
 
         /// <summary>
@@ -157,9 +162,9 @@ namespace AutoScrapper
         private ConfigDescription GetDescription(ItemDef item)
         {
             return new ConfigDescription(
-                $"{Language.GetString(item.nameToken)} amount to keep before scrapping. \n" +
-                $"> {Language.GetString(item.descriptionToken).Sanitize()} \n" +
-                $"0 = scrap all, -1 = don't scrap");
+                $"{Utility.GetFormattedName(item)} <color=#DDDDDD>amount to keep before scrapping.</color> \n\n" +
+                $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
+                $"<color=#DDDDDD>0 = scrap all, -1 = don't scrap</color>");
         }
 
         /// <summary>
