@@ -95,7 +95,7 @@ namespace AutoScrapper
                     int itemLimit = config.GetLimit(itemId);
 
                     // If the limit is -1, we don't scrap the item.
-                    if (itemLimit == -1)
+                    if (itemLimit <= -1)
                         continue;
 
                     // If the item count is less than or equal to the limit, we scrap it.
