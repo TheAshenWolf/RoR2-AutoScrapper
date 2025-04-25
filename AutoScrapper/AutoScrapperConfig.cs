@@ -131,15 +131,18 @@ namespace AutoScrapper
             for (int i = 0; i < itemCount; i++)
             {
                 // We get the item definition
-                ItemDef item = ItemCatalog.GetItemDef(items[i]);
+                ItemIndex itemIndex = items[i];
+                ItemDef item = ItemCatalog.GetItemDef(itemIndex);
 
                 // There is no point in creating a config entry for items that cannot be removed, are consumed or are hidden
                 if (!item.canRemove || item.isConsumed || item.hidden)
                     continue;
 
+                int defaultValue = ConfigOverrides.defaultOverrides.GetValueOrDefault(item.name, -1);
+
                 // Then we create a config entry for each item. We do not use translation here as this needs to be persistent for everyone regardless of locale.
-                ConfigEntry<int> config = _config.Bind(section, item.name, -1, GetDescription(item));
-                itemConfig[item.itemIndex] = config;
+                ConfigEntry<int> config = _config.Bind(section, item.name, defaultValue, GetDescription(item));
+                itemConfig[itemIndex] = config;
                 if (RiskOfOptionsCompatibility.Enabled)
                     RiskOfOptionsCompatibility.AddIntOption(config);
             }

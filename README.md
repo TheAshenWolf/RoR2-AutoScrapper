@@ -5,11 +5,11 @@ Tired of scrapping the same item on every single scrapper? Now you can set limit
 ## Roadmap
 
 General:
-- [ ] Add dependencies
+- [x] Add dependencies
 
 Config:
 - [x] Dynamic config with all items with settable limits
-- [ ] Default value overrides - for example for goggles
+- [x] Default value overrides - for example for goggles
 - [x] User can determine whether to keep scrapper closed after automatic scrapping
 
 Scrapping:
@@ -26,3 +26,7 @@ Check:
 Bonus features:
 - [ ] Make config overrideable per character?
 - [x] Integrate with Risk of Options
+
+Thunderstore:
+- [ ] Add manifest.json
+- [x] Add mod icon
