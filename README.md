@@ -25,4 +25,4 @@ Check:
 
 Bonus features:
 - [ ] Make config overrideable per character?
-- [ ] Integrate with Risk of Options
+- [x] Integrate with Risk of Options

@@ -40,11 +40,6 @@ namespace AutoScrapper
         {
             SetupConfig();
             BindEvents();
-
-            if (RiskOfOptionsCompatibility.Enabled)
-            {
-                RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
-            }
         }
 
         /// <summary>

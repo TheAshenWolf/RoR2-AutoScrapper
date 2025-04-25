@@ -33,6 +33,13 @@ namespace AutoScrapper
         {
             On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
             On.RoR2.Interactor.PerformInteraction += Interactor_PerformInteraction;
+
+            if (RiskOfOptionsCompatibility.Enabled)
+            {
+                RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
+                RiskOfOptionsCompatibility.SetModIcon();
+            }
+
         }
 
         /// <summary>
