@@ -2,7 +2,7 @@
 
 ![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue)
 ![QoL](https://img.shields.io/badge/Quality%20of%20Life-blue)
-![Client Side](https://img.shields.io/badge/Client%20Side-blue)
+![Client and Server Side](https://img.shields.io/badge/Client%20and%20Server%20Side-blue)
 ## Currently in beta testing!
 
 ---
@@ -52,26 +52,11 @@ Setting the limit to 0 will scrap all items, setting it to -1 will disable scrap
 
 ### F&Q
 - **Q: Does the mod work with modded items?**
-- A: Yes and no. The support for modded items is currently very limited. Luckily for you, the only thing "broken" about it is the settings. You can still set up limit for modded items, however, if the mod is using asset bundles (as it should be), the item names will most likely not load properly.
-
+- A: The support for modded items is currently very limited and was not yet thoroughly tested. We are already aware of some minor issues.
 - **Q: Does the mod work with multiplayer?**
-- A: [TBD: REQUIRES TESTING]
-
-// In case it is a client-side mod
-- **Q: Is this cheating?**
-- A: The only advantage you gain against other players is that you don't need to mindlessly scroll through the scrapper every single time. While I would not consider it cheating, you should always make sure your friends are okay with you using the mod if you are playing in multiplayer.
-
+- A: Yes. Both the host and the client need to have the mod installed.
 
 ## Thanks and credits
 **TheAshenWolf** - programming, optimization  
 **Danquo** - constantly breaking the mod  
-**Holytepps** - initial mod plan, multiplayer testing  
-
-
-
-# Test Checklist (Remove me)
-- [ ] Multiplayer compatibility
-- [ ] Resetting config to default using Risk of Options
-- [ ] Setting limit to -2
-- [ ] Modded items support
-- [ ] Does the host need the item?
+**Holytepps** - initial mod plan, multiplayer testing
