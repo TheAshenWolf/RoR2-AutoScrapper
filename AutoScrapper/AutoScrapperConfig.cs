@@ -138,6 +138,13 @@ namespace AutoScrapper
                 if (!item.canRemove || item.isConsumed || item.hidden)
                     continue;
 
+                // We don't want scrap in the config
+                if (Utility.IsScrap(itemIndex))
+                    continue;
+
+                if (Utility.BLACKLIST.Contains(item.name))
+                    continue;
+
                 int defaultValue = ConfigOverrides.defaultOverrides.GetValueOrDefault(item.name, -1);
 
                 // Then we create a config entry for each item. We do not use translation here as this needs to be persistent for everyone regardless of locale.

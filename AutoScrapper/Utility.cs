@@ -8,6 +8,14 @@ namespace AutoScrapper;
 public static class Utility
 {
     /// <summary>
+    /// Some special items that shouldn't be scrapped still bypass the filters. We list them here.
+    /// </summary>
+    public static readonly string[] BLACKLIST = new[]
+    {
+            "ArtifactKey",
+    };
+
+    /// <summary>
     /// Returns the ItemIndex of the scrap item corresponding to the given ItemTier. <br/>
     /// Returns <see cref="ItemIndex.None"/> if the tier is not supported. This should be
     /// used to prevent scrapping items that are not supported.
@@ -30,10 +38,7 @@ public static class Utility
     /// </summary>
     public static bool IsScrap(ItemIndex index)
     {
-        return index == RoR2Content.Items.ScrapWhite.itemIndex ||
-               index == RoR2Content.Items.ScrapGreen.itemIndex ||
-               index == RoR2Content.Items.ScrapRed.itemIndex ||
-               index == RoR2Content.Items.ScrapYellow.itemIndex;
+        return index == RoR2Content.Items.ScrapWhite.itemIndex || index == RoR2Content.Items.ScrapGreen.itemIndex || index == RoR2Content.Items.ScrapRed.itemIndex || index == RoR2Content.Items.ScrapYellow.itemIndex;
     }
 
     /// <summary>
@@ -49,7 +54,7 @@ public static class Utility
                 ItemTier.Boss => "<color=#FFFF00>",
                 _ => "<color=#FFFFFF>"
         };
-        
+
         return $"{color}{Language.GetString(item.nameToken)}</color>";
     }
 }

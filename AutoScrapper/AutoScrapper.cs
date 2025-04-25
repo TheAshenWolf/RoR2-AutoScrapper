@@ -1,6 +1,7 @@
 using BepInEx;
 using R2API;
 using RoR2;
+using System.Linq;
 using UnityEngine;
 
 namespace AutoScrapper
@@ -136,6 +137,10 @@ namespace AutoScrapper
 
             // If the item is consumed, we can't scrap it.
             if (itemDef.isConsumed)
+                return false;
+            
+            // If the item is blacklisted, ignore it.
+            if (Utility.BLACKLIST.Contains(itemDef.name))
                 return false;
 
             // We get the item tier (we don't need to get it if the previous checks failed).
