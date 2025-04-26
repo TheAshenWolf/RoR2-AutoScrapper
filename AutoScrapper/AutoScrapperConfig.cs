@@ -4,6 +4,7 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using RoR2;
+using UnityEngine;
 
 namespace AutoScrapper
 {
@@ -14,24 +15,17 @@ namespace AutoScrapper
     {
         private ConfigFile _config;
 
-        // We use a dictionary so we can easily look up the item's config by its index
-        public static Dictionary<ItemIndex, ConfigEntry<int>> whiteItemConfig;
-        public static Dictionary<ItemIndex, ConfigEntry<int>> greenItemConfig;
-        public static Dictionary<ItemIndex, ConfigEntry<int>> redItemConfig;
-        public static Dictionary<ItemIndex, ConfigEntry<int>> yellowItemConfig;
-
-        // We use a dictionary to cache the limits for each item
-        // This way we don't need to access the config file every time we open a scrapper
-        private Dictionary<ItemIndex, int> _limits;
+        /// We use a dictionary so we can easily look up the item's config by its index
+        private Dictionary<ItemIndex, ConfigEntry<int>> _configEntries;
         
         // General configuration
         ConfigEntry<bool> _keepScrapperClosedConfig;
         
         // We use these arrays to store the items for each tier
-        public ItemIndex[] whiteItems;
-        public ItemIndex[] greenItems;
-        public ItemIndex[] redItems;
-        public ItemIndex[] yellowItems;
+        private ItemIndex[] _whiteItems;
+        private ItemIndex[] _greenItems;
+        private ItemIndex[] _redItems;
+        private ItemIndex[] _yellowItems;
 
         /// <summary>
         /// Upon construction, we set up the config and bind the events.
@@ -39,7 +33,6 @@ namespace AutoScrapper
         public AutoScrapperConfig()
         {
             SetupConfig();
-            BindEvents();
         }
 
         /// <summary>
@@ -63,55 +56,25 @@ namespace AutoScrapper
             if (RiskOfOptionsCompatibility.Enabled)
                 RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
             
-            // First we gather all white items
-            whiteItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(whiteItems.Length);
-            CreateItemGroupConfigs("White Items", whiteItems, whiteItemConfig);
+            // We count the total amount of items and create a dictionary for the config entries
+            int itemsTotal = _whiteItems.Length + _greenItems.Length + _redItems.Length + _yellowItems.Length;
+            _configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
 
-            // Then we gather all green items
-            greenItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(greenItems.Length);
-            CreateItemGroupConfigs("Green Items", greenItems, greenItemConfig);
-
-            // Then we gather all red items
-            redItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(redItems.Length);
-            CreateItemGroupConfigs("Red Items", redItems, redItemConfig);
-
-            // Then we gather all yellow items
-            yellowItemConfig = new Dictionary<ItemIndex, ConfigEntry<int>>(yellowItems.Length);
-            CreateItemGroupConfigs("Yellow Items", yellowItems, yellowItemConfig);
-
-            _limits = new Dictionary<ItemIndex, int>(whiteItems.Length + greenItems.Length + redItems.Length +
-                                                     yellowItems.Length);
-
-            // When the game initializes, the config cache is empty. We need to call OnConfigReloaded manually to fill it.
-            OnConfigReloaded(null, null);
+            CreateItemGroupConfigs("White Items", _whiteItems, _configEntries);
+            CreateItemGroupConfigs("Green Items", _greenItems, _configEntries);
+            CreateItemGroupConfigs("Red Items", _redItems, _configEntries);
+            CreateItemGroupConfigs("Yellow Items", _yellowItems, _configEntries);
         }
-
-        private void BindEvents()
-        {
-            // We bind the event to reload the config when it is reloaded
-            _config.ConfigReloaded += OnConfigReloaded;
-        }
-
-        /// <summary>
-        /// We need to unbind the event when the mod is destroyed
-        /// As this class is a custom one, we need this public so we can call it from <see cref="AutoScrapper"/>
-        /// </summary>
-        public void OnDestroy()
-        {
-            // Unbind the event to prevent memory leaks
-            _config.ConfigReloaded -= OnConfigReloaded;
-        }
-
 
         /// <summary>
         /// Gathers all item IDs for scrappable items
         /// </summary>
         private void GatherItems()
         {
-            whiteItems = ItemCatalog.tier1ItemList.ToArray();
-            greenItems = ItemCatalog.tier2ItemList.ToArray();
-            redItems = ItemCatalog.tier3ItemList.ToArray();
-            yellowItems = ItemCatalog.allItemDefs.Where(def => def.tier == ItemTier.Boss).Select(def => def.itemIndex)
+            _whiteItems = ItemCatalog.tier1ItemList.ToArray();
+            _greenItems = ItemCatalog.tier2ItemList.ToArray();
+            _redItems = ItemCatalog.tier3ItemList.ToArray();
+            _yellowItems = ItemCatalog.allItemDefs.Where(def => def.tier == ItemTier.Boss).Select(def => def.itemIndex)
                 .ToArray();
         }
 
@@ -171,44 +134,13 @@ namespace AutoScrapper
                 $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
                 $"<color=#DDDDDD>0 = scrap all, -1 = don't scrap</color>");
         }
-
-        /// <summary>
-        /// When the config reloads, we need to update the limits for each item
-        /// so the values stay up to date.
-        /// </summary>
-        private void OnConfigReloaded(object sender, EventArgs e)
-        {
-            // First we need to clear the limits dictionary
-            _limits.Clear();
-
-            // Then we update the limits for each item
-            foreach ((ItemIndex key, ConfigEntry<int> _) in whiteItemConfig)
-            {
-                _limits[key] = whiteItemConfig.TryGetValue(key, out ConfigEntry<int> entry) ? entry.Value : -1;
-            }
-
-            foreach ((ItemIndex key, ConfigEntry<int> _) in greenItemConfig)
-            {
-                _limits[key] = greenItemConfig.TryGetValue(key, out ConfigEntry<int> entry) ? entry.Value : -1;
-            }
-
-            foreach ((ItemIndex key, ConfigEntry<int> _) in redItemConfig)
-            {
-                _limits[key] = redItemConfig.TryGetValue(key, out ConfigEntry<int> entry) ? entry.Value : -1;
-            }
-
-            foreach ((ItemIndex key, ConfigEntry<int> _) in yellowItemConfig)
-            {
-                _limits[key] = yellowItemConfig.TryGetValue(key, out ConfigEntry<int> entry) ? entry.Value : -1;
-            }
-        }
-
+        
         /// <summary>
         /// A getter for the item limit for given item index.
         /// </summary>
         public int GetLimit(ItemIndex index)
         {
-            return _limits.GetValueOrDefault(index, -1);
+            return _configEntries.GetValueOrDefault(index, null)?.Value ?? -1;
         }
         
         /// <summary>

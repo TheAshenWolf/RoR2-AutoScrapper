@@ -50,7 +50,6 @@ namespace AutoScrapper
         {
             On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
             On.RoR2.Interactor.PerformInteraction -= Interactor_PerformInteraction;
-            config?.OnDestroy();
         }
 
         /// <summary>

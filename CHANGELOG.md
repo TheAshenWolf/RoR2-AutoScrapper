@@ -1,4 +1,4 @@
-# AutoScrapper 0.0.1
+# AutoScrapper 0.0.9
 The mod is here and is ready to be ~~broken~~ tested!
 It includes:
 - Automatic scrapping of items based on a set limit
