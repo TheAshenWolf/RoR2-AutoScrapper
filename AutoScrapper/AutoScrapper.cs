@@ -3,7 +3,11 @@ using R2API;
 using RoR2;
 using System.Collections.Generic;
 using System.Linq;
+using R2API.Networking;
+using R2API.Networking.Interfaces;
 using UnityEngine;
+using UnityEngine.Networking;
+using Run = On.RoR2.Run;
 
 namespace AutoScrapper
 {
@@ -12,6 +16,7 @@ namespace AutoScrapper
     /// </summary>
     [BepInDependency(ItemAPI.PluginGUID)]
     [BepInDependency(LanguageAPI.PluginGUID)]
+    [BepInDependency(NetworkingAPI.PluginGUID)]
     [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     public class AutoScrapper : BaseUnityPlugin
@@ -41,7 +46,6 @@ namespace AutoScrapper
                 RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
                 RiskOfOptionsCompatibility.SetModIcon();
             }
-
         }
 
         /// <summary>
@@ -51,6 +55,19 @@ namespace AutoScrapper
         {
             On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
             On.RoR2.Interactor.PerformInteraction -= Interactor_PerformInteraction;
+        }
+
+        private void SyncPlayer(CharacterBody body)
+        {
+            if (NetworkServer.active) return;
+
+            NetworkIdentity identity = body.GetComponent<NetworkIdentity>();
+            if (identity == null)
+            {
+                Debug.LogWarning("AutoScrapper: NetworkIdentity is null. Cannot sync config.");
+                return;
+            }
+            new ConfigSync(identity.netId, config).Send(NetworkDestination.Server);
         }
 
         /// <summary>

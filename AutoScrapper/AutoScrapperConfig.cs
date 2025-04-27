@@ -3,6 +3,7 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using RoR2;
+using UnityEngine.Networking;
 
 namespace AutoScrapper
 {
@@ -11,10 +12,13 @@ namespace AutoScrapper
     /// </summary>
     public class AutoScrapperConfig
     {
+        public Dictionary<NetworkInstanceId, Dictionary<string, bool>> clientGeneralConfigs;
+        public Dictionary<NetworkInstanceId, Dictionary<string, int>> clientItemConfigs;
+
         private ConfigFile _config;
 
         /// We use a dictionary so we can easily look up the item's config by its index
-        private Dictionary<ItemIndex, ConfigEntry<int>> _configEntries;
+        public Dictionary<ItemIndex, ConfigEntry<int>> configEntries;
         
         // General configuration
         private ConfigEntry<bool> _keepScrapperClosedConfig;
@@ -32,6 +36,9 @@ namespace AutoScrapper
         /// </summary>
         public AutoScrapperConfig()
         {
+            clientGeneralConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, bool>>();
+            clientItemConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, int>>();
+
             SetupConfig();
         }
 
@@ -70,12 +77,12 @@ namespace AutoScrapper
             
             // We count the total amount of items and create a dictionary for the config entries
             int itemsTotal = _whiteItems.Length + _greenItems.Length + _redItems.Length + _yellowItems.Length;
-            _configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
+            configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
 
-            CreateItemGroupConfigs("White Items", _whiteItems, _configEntries);
-            CreateItemGroupConfigs("Green Items", _greenItems, _configEntries);
-            CreateItemGroupConfigs("Red Items", _redItems, _configEntries);
-            CreateItemGroupConfigs("Yellow Items", _yellowItems, _configEntries);
+            CreateItemGroupConfigs("White Items", _whiteItems, configEntries);
+            CreateItemGroupConfigs("Green Items", _greenItems, configEntries);
+            CreateItemGroupConfigs("Red Items", _redItems, configEntries);
+            CreateItemGroupConfigs("Yellow Items", _yellowItems, configEntries);
         }
 
         /// <summary>
@@ -152,7 +159,7 @@ namespace AutoScrapper
         /// </summary>
         public int GetLimit(ItemIndex index)
         {
-            return _configEntries.GetValueOrDefault(index, null)?.Value ?? -1;
+            return configEntries.GetValueOrDefault(index, null)?.Value ?? -1;
         }
         
         /// <summary>
@@ -160,7 +167,7 @@ namespace AutoScrapper
         /// automatically scrapping.
         /// </summary>
         public bool KeepScrapperClosed => _keepScrapperClosedConfig.Value;
-        
+
         /// <summary>
         /// Gets the config entry for whether the mod is enabled.
         /// </summary>
