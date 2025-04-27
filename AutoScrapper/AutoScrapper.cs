@@ -1,6 +1,7 @@
 using BepInEx;
 using R2API;
 using RoR2;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -75,6 +76,7 @@ namespace AutoScrapper
 
                 // We track whether an item was scrapped or not.
                 bool itemScrapped = false;
+                ScrapperReportCount reportCount = new ScrapperReportCount();
 
                 // We have to go backwards, as Removing an item actually removes it from the array.
                 // This is not exactly performance friendly, but it works.
@@ -96,14 +98,26 @@ namespace AutoScrapper
                     // If the limit is -1, we don't scrap the item.
                     if (itemLimit <= -1)
                         continue;
+                    
+                    ItemDef itemDef = ItemCatalog.GetItemDef(itemId);
+                    int count = itemCount - itemLimit;
 
                     // If the item count is less than or equal to the limit, we scrap it.
-                    itemScrapped |= ScrapItem(inventory, itemId, itemCount - itemLimit);
+                    if (ScrapItem(inventory, itemDef, count))
+                    {
+                        itemScrapped = true;
+                        reportCount.Add(itemDef.tier, count);
+                    }
                 }
 
                 // If an item was scrapped and the config says to keep the scrapper closed, we return here.
-                if (itemScrapped && config.KeepScrapperClosed)
-                    return;
+                if (itemScrapped)
+                {
+                    ReportResults(reportCount);
+
+                    if (config.KeepScrapperClosed)
+                        return;
+                }
             }
 
             // Open the scrapper as normal.
@@ -114,21 +128,18 @@ namespace AutoScrapper
         /// Scraps given item in the player's inventory.
         /// </summary>
         /// <param name="playerInventory">Inventory to take items from</param>
-        /// <param name="itemIndex">The item to scrap</param>
+        /// <param name="itemDef">Definition of the item to scrap</param>
         /// <param name="count">Amount of the item to scrap</param>
         /// <returns>True if an item was scrapped</returns>
-        private bool ScrapItem(Inventory playerInventory, ItemIndex itemIndex, int count)
+        private bool ScrapItem(Inventory playerInventory, ItemDef itemDef, int count)
         {
             // If there is nothing to scrap (or we somehow got a negative number), we can't scrap it.
             if (count <= 0)
                 return false;
 
             // If the item is a scrap item, we can't scrap it.
-            if (Utility.IsScrap(itemIndex))
+            if (Utility.IsScrap(itemDef.itemIndex))
                 return false;
-
-            // First we need to get the item definition to find out the tier of the item, which determines the scrap type.
-            ItemDef itemDef = ItemCatalog.GetItemDef(itemIndex);
 
             // If the item cannot be removed, we can't scrap it.
             if (!itemDef.canRemove)
@@ -153,7 +164,7 @@ namespace AutoScrapper
                 return false;
 
             // We remove the item from the player's inventory - only if everything else succeeded.
-            playerInventory.RemoveItem(itemIndex, count);
+            playerInventory.RemoveItem(itemDef.itemIndex, count);
             // Then we give the player the scrap item for the given tier.
             playerInventory.GiveItem(scrapIndex, count);
 
@@ -170,6 +181,46 @@ namespace AutoScrapper
         {
             orig(newProviders);
             config = new AutoScrapperConfig();
+        }
+
+        /// <summary>
+        /// Reports the results of scrapping into the chat window.
+        /// </summary>
+        private void ReportResults(ScrapperReportCount count)
+        {
+            List<string> parts = count.GetReportParts();
+            
+            int partsCount = parts.Count;
+            if (partsCount == 0)
+                return;
+            
+            string result = "<color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+            
+            if (partsCount == 1)
+                result += parts[0] + ".";
+            else if (partsCount == 2)
+                result += parts[0] + " " + Language.GetString("AUTO_SCRAPPER_AND") + " " + parts[1] + ".";
+            else if (partsCount > 2)
+            {
+                for (int i = 0; i < partsCount; i++)
+                {
+                    if (i > 0)
+                    {
+                        if (i == partsCount - 1)
+                            result += ", " + Language.GetString("AUTO_SCRAPPER_AND") + " ";
+                        else
+                            result += ", ";
+                    }
+                    result += parts[i];
+                }
+                result += ".";
+            }
+            result += "</color>";
+
+            Chat.SimpleChatMessage chat = new Chat.SimpleChatMessage();
+            chat.baseToken = result;
+            
+            Chat.SendBroadcastChat(chat);
         }
     }
 }
