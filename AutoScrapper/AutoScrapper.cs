@@ -203,7 +203,7 @@ namespace AutoScrapper
             if (partsCount == 0)
                 return;
             
-            string result = "<color=#0000FF>" + userName + "</color> <color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+            string result = "<color=#2083fc>" + userName + "</color> <color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
             
             if (partsCount == 1)
                 result += parts[0] + ".";
