@@ -3,9 +3,8 @@
 ![Version 0.0.9](https://img.shields.io/badge/version-0.0.9-blue)
 ![QoL](https://img.shields.io/badge/Quality%20of%20Life-blue)
 ![Client and Server Side](https://img.shields.io/badge/Client%20and%20Server%20Side-blue)
-## Currently in beta testing!
 
----
+## Currently in beta testing!
 
 Ever felt tired of scrapping the same item over an over again at every scrapper?  
 Well fret no more, as **AutoScrapper** is here to save your time.  
@@ -55,6 +54,10 @@ Setting the limit to 0 will scrap all items, setting it to -1 will disable scrap
 - A: The support for modded items is currently very limited and was not yet thoroughly tested. We are already aware of some minor issues.
 - **Q: Does the mod work with multiplayer?**
 - A: Yes. Both the host and the client need to have the mod installed.
+
+### Bugs? Issues? Feedback?
+No mod exists without its bugs. No mod has everything.  
+Feel free to report all issues you encounter right [here](https://github.com/TheAshenWolf/RoR2-AutoScrapper/issues).
 
 ## Thanks and credits
 **TheAshenWolf** - programming, optimization  
