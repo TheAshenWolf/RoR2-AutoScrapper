@@ -61,6 +61,12 @@ namespace AutoScrapper
         private void Interactor_PerformInteraction(On.RoR2.Interactor.orig_PerformInteraction orig, Interactor self,
             GameObject interactable)
         {
+            if (!config.ModEnabled)
+            {
+                orig(self, interactable);
+                return;
+            }
+            
             if (interactable.name.StartsWith("Scrapper"))
             {
                 CharacterBody localBody = self.GetComponent<CharacterBody>();
@@ -188,6 +194,9 @@ namespace AutoScrapper
         /// </summary>
         private void ReportResults(ScrapperReportCount count)
         {
+            if (!config.ReportEnabled)
+                return;
+            
             List<string> parts = count.GetReportParts();
             
             int partsCount = parts.Count;
