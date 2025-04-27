@@ -119,7 +119,7 @@ namespace AutoScrapper
                 // If an item was scrapped and the config says to keep the scrapper closed, we return here.
                 if (itemScrapped)
                 {
-                    ReportResults(reportCount);
+                    ReportResults(localBody.GetUserName(), reportCount);
 
                     if (config.KeepScrapperClosed)
                         return;
@@ -192,7 +192,7 @@ namespace AutoScrapper
         /// <summary>
         /// Reports the results of scrapping into the chat window.
         /// </summary>
-        private void ReportResults(ScrapperReportCount count)
+        private void ReportResults(string userName, ScrapperReportCount count)
         {
             if (!config.ReportEnabled)
                 return;
@@ -203,7 +203,7 @@ namespace AutoScrapper
             if (partsCount == 0)
                 return;
             
-            string result = "<color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+            string result = "<color=#0000FF>" + userName + "</color> <color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
             
             if (partsCount == 1)
                 result += parts[0] + ".";
