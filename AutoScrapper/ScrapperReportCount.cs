@@ -46,13 +46,13 @@ namespace AutoScrapper
             List<string> parts = new List<string>(4);
             
             if (white > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_WHITE_ITEMS"), white));
+                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_WHITE_ITEMS" + (white > 1 ? "_PLURAL" : "")), white));
             if (green > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_GREEN_ITEMS"), green));
+                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_GREEN_ITEMS" + (green > 1 ? "_PLURAL" : "")), green));
             if (red > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_RED_ITEMS"), red));
+                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_RED_ITEMS" + (red > 1 ? "_PLURAL" : "") ), red));
             if (yellow > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_YELLOW_ITEMS"), yellow));
+                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_YELLOW_ITEMS" + (yellow > 1 ? "_PLURAL" : "")), yellow));
             
             return parts;
         }
