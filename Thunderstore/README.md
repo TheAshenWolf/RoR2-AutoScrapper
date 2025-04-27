@@ -49,13 +49,13 @@ Setting the limit to 0 will scrap all items, setting it to -1 will disable scrap
 - Note: The item descriptions are styled for display in-game, so there are severa &lt;style&gt; and &lt;color&gt; tags present in the text making it harder to read.
 - Set the limits for each item according to you needs and desires
 
-### F&Q
+## F&Q
 - **Q: Does the mod work with modded items?**
 - A: The support for modded items is currently very limited and was not yet thoroughly tested. We are already aware of some minor issues.
 - **Q: Does the mod work with multiplayer?**
 - A: Yes. Both the host and the client need to have the mod installed.
 
-### Bugs? Issues? Feedback?
+## Bugs? Issues? Feedback?
 No mod exists without its bugs. No mod has everything.  
 Feel free to report all issues you encounter right [here](https://github.com/TheAshenWolf/RoR2-AutoScrapper/issues).
 
