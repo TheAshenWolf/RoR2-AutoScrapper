@@ -1,3 +1,7 @@
+# AutoScrapper 0.1.0
+- Fixed a bug causing the mod to only respect the host's config in multiplayer
+- Added R2API.Networking dependency
+
 # AutoScrapper 0.0.9
 The mod is here and is ready to be ~~broken~~ tested!  
 It includes:

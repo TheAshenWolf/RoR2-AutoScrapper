@@ -172,10 +172,5 @@ namespace AutoScrapper
         /// Gets the config entry for whether the mod is enabled.
         /// </summary>
         public bool ModEnabled => _modEnabledConfig.Value;
-        
-        /// <summary>
-        /// Gets the config entry for whether the mod should report the number of items scrapped.
-        /// </summary>
-        // public bool ReportEnabled => _reportEnabledConfig.Value;
     }
 }

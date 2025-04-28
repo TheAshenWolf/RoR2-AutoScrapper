@@ -1,6 +1,6 @@
 # Auto Scrapper
 
-![Version 0.0.9](https://img.shields.io/badge/version-0.0.9-blue)
+![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-blue)
 ![QoL](https://img.shields.io/badge/Quality%20of%20Life-blue)
 ![Client and Server Side](https://img.shields.io/badge/Client%20and%20Server%20Side-blue)
 
@@ -17,6 +17,7 @@ While [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/
 - [HookGenPatcher](https://thunderstore.io/package/RiskofThunder/HookGenPatcher/)
 - [R2API Items](https://thunderstore.io/package/RiskofThunder/R2API_Items/)
 - [R2API Language](https://thunderstore.io/package/RiskofThunder/R2API_Language/)
+- [R2API Networking](https://thunderstore.io/package/RiskofThunder/R2API_Networking/)
 
 ### Optional
 - [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/) - for in-game config
