@@ -6,15 +6,28 @@ using UnityEngine.Networking;
 
 namespace AutoScrapper;
 
-public class ScrapSync(
-    NetworkInstanceId networkId,
-    ScrapperReportCount reportCount,
-    Dictionary<ItemIndex, int> itemsToRemove)
-    : INetMessage
+public class ScrapSync : INetMessage
 {
-    public NetworkInstanceId NetworkId { get; private set; } = networkId;
-    public ScrapperReportCount ReportCount { get; private set; } = reportCount;
-    public Dictionary<ItemIndex, int> ItemsToRemove { get; private set; } = itemsToRemove;
+    public ScrapSync()
+    {
+        NetworkId = NetworkInstanceId.Invalid;
+        ReportCount = new ScrapperReportCount();
+        ItemsToRemove = new Dictionary<ItemIndex, int>();
+    }
+    
+    public ScrapSync(NetworkInstanceId networkId,
+        ScrapperReportCount reportCount,
+        Dictionary<ItemIndex, int> itemsToRemove)
+    {
+        NetworkId = networkId;
+        ReportCount = reportCount;
+        ItemsToRemove = itemsToRemove;
+    }
+
+
+    public NetworkInstanceId NetworkId { get; private set; }
+    public ScrapperReportCount ReportCount { get; private set; }
+    public Dictionary<ItemIndex, int> ItemsToRemove { get; private set; }
 
     public void Serialize(NetworkWriter writer)
     {
@@ -85,7 +98,9 @@ public class ScrapSync(
             // Sadly, we cannot really change that.
             inventory.RemoveItem(itemId, itemCount);
         }
-        
+        // TODO: Items were removed properly upon scrapping (or at least it looked that way); for the client
+        // TODO: However, the player did not receive any scrap.
+
         // Add scrap
         if (ReportCount.white > 0)
             inventory.GiveItem(RoR2Content.Items.ScrapWhite.itemIndex, ReportCount.white);
@@ -95,24 +110,25 @@ public class ScrapSync(
             inventory.GiveItem(RoR2Content.Items.ScrapRed.itemIndex, ReportCount.red);
         if (ReportCount.yellow > 0)
             inventory.GiveItem(RoR2Content.Items.ScrapYellow.itemIndex, ReportCount.yellow);
-        
+
         // Report the results to the chat
         ReportResults(localBody.GetUserName(), ReportCount);
     }
-    
+
     /// <summary>
     /// Reports the results of scrapping into the chat window.
     /// </summary>
     private void ReportResults(string userName, ScrapperReportCount count)
     {
         List<string> parts = count.GetReportParts();
-            
+
         int partsCount = parts.Count;
         if (partsCount == 0)
             return;
-            
-        string result = "<color=#2083fc>" + userName + "</color> <color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
-            
+
+        string result = "<color=#2083fc>" + userName + "</color> <color=#DDDDDD>" +
+                        Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+
         if (partsCount == 1)
             result += parts[0] + ".";
         else if (partsCount == 2)
@@ -128,15 +144,18 @@ public class ScrapSync(
                     else
                         result += ", ";
                 }
+
                 result += parts[i];
             }
+
             result += ".";
         }
+
         result += "</color>";
 
         Chat.SimpleChatMessage chat = new Chat.SimpleChatMessage();
         chat.baseToken = result;
-            
+
         Chat.SendBroadcastChat(chat);
     }
 }

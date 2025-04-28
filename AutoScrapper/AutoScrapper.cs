@@ -43,6 +43,8 @@ public class AutoScrapper : BaseUnityPlugin
             RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
             RiskOfOptionsCompatibility.SetModIcon();
         }
+        
+        NetworkingAPI.RegisterMessageType<ScrapSync>();
     }
 
     /// <summary>
@@ -76,6 +78,7 @@ public class AutoScrapper : BaseUnityPlugin
     private void Interactor_AttemptInteraction(On.RoR2.Interactor.orig_AttemptInteraction orig, Interactor self,
         GameObject interactable)
     {
+        // TODO: This is probably the reason why host's items are not being scrapped at all.
         if (NetworkServer.active) // There is nothing to do on the server
         {
             orig(self, interactable);
