@@ -1,252 +1,211 @@
-using BepInEx;
-using R2API;
-using RoR2;
 using System.Collections.Generic;
 using System.Linq;
+using BepInEx;
+using R2API;
 using R2API.Networking;
 using R2API.Networking.Interfaces;
+using RoR2;
 using UnityEngine;
 using UnityEngine.Networking;
-using Run = On.RoR2.Run;
 
-namespace AutoScrapper
+namespace AutoScrapper;
+
+[BepInDependency(ItemAPI.PluginGUID)]
+[BepInDependency(LanguageAPI.PluginGUID)]
+[BepInDependency(NetworkingAPI.PluginGUID)]
+[BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
+public class AutoScrapper : BaseUnityPlugin
 {
     /// <summary>
-    /// Default setup for the plugin
+    /// Just some default stuff for the plugin to function
     /// </summary>
-    [BepInDependency(ItemAPI.PluginGUID)]
-    [BepInDependency(LanguageAPI.PluginGUID)]
-    [BepInDependency(NetworkingAPI.PluginGUID)]
-    [BepInDependency("com.rune580.riskofoptions", BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
-    public class AutoScrapper : BaseUnityPlugin
+    public const string PLUGIN_GUID = PLUGIN_AUTHOR + "." + PLUGIN_NAME;
+
+    public const string PLUGIN_AUTHOR = "TheAshenWolf";
+    public const string PLUGIN_NAME = "AutoScrapper";
+    public const string PLUGIN_VERSION = "0.0.9";
+
+    /// Link to the plugin's config file
+    public AutoScrapperConfig config;
+
+    /// <summary>
+    /// Scrapping.OnEnter is called when the player opens a scrapper.
+    /// </summary>
+    [Client]
+    private void Awake()
     {
-        /// <summary>
-        /// Just some default stuff for the plugin to function
-        /// </summary>
-        public const string PLUGIN_GUID = PLUGIN_AUTHOR + "." + PLUGIN_NAME;
+        On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
+        On.RoR2.Interactor.AttemptInteraction += Interactor_AttemptInteraction;
 
-        public const string PLUGIN_AUTHOR = "TheAshenWolf";
-        public const string PLUGIN_NAME = "AutoScrapper";
-        public const string PLUGIN_VERSION = "0.0.1";
-
-        /// Link to the plugin's config file
-        public AutoScrapperConfig config;
-
-        /// <summary>
-        /// Scrapping.OnEnter is called when the player opens a scrapper.
-        /// </summary>
-        private void Awake()
+        if (RiskOfOptionsCompatibility.Enabled)
         {
-            On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
-            On.RoR2.Interactor.PerformInteraction += Interactor_PerformInteraction;
+            RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
+            RiskOfOptionsCompatibility.SetModIcon();
+        }
+    }
 
-            if (RiskOfOptionsCompatibility.Enabled)
-            {
-                RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
-                RiskOfOptionsCompatibility.SetModIcon();
-            }
+    /// <summary>
+    /// Don't forget to unsubscribe from the event when the object is destroyed to prevent memory leaks.
+    /// </summary>
+    [Client]
+    private void OnDestroy()
+    {
+        On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
+        On.RoR2.Interactor.AttemptInteraction -= Interactor_AttemptInteraction;
+    }
+
+    /// <summary>
+    /// We cannot simply "setup" the config as it is dynamic.
+    /// For this reason we need to call the setup method after all equipment was loaded.
+    /// </summary>
+    [Client]
+    private void ItemCatalog_SetItemRelationships(On.RoR2.ItemCatalog.orig_SetItemRelationships orig,
+        ItemRelationshipProvider[] newProviders)
+    {
+        orig(newProviders);
+        config = new AutoScrapperConfig();
+    }
+    
+    /// <summary>
+    /// Called when the user successfully interacts with an interactable object.
+    /// We only care about the scrapper, which is why we check for the name as the first thing.
+    /// interactable.name is the name of the GameObject, so it doesn't fall under localization.
+    /// </summary>
+    [Client]
+    private void Interactor_AttemptInteraction(On.RoR2.Interactor.orig_AttemptInteraction orig, Interactor self,
+        GameObject interactable)
+    {
+        if (NetworkServer.active) // There is nothing to do on the server
+        {
+            orig(self, interactable);
+            return;
         }
 
-        /// <summary>
-        /// Don't forget to unsubscribe from the event when the object is destroyed to prevent memory leaks.
-        /// </summary>
-        private void OnDestroy()
+        // Only run on client
+        // 1. Check if the mod is enabled
+        // 2. Attempt to scrap all items generating KVP<string, int> for each item
+        //     2.a - We will be adding scrap: n for each item scrapped
+        //     2.b - We will be adding item: -n for each item scrapped
+        // 3. Send the message to the server
+        // 4. If the config says to keep the scrapper closed, we return here.
+        // 5. Open the scrapper as normal.
+
+        if (!config.ModEnabled)
         {
-            On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
-            On.RoR2.Interactor.PerformInteraction -= Interactor_PerformInteraction;
+            orig(self, interactable);
+            return;
         }
 
-        private void SyncPlayer(CharacterBody body)
+        if (interactable.name.StartsWith("Scrapper"))
         {
-            if (NetworkServer.active) return;
-
-            NetworkIdentity identity = body.GetComponent<NetworkIdentity>();
-            if (identity == null)
+            CharacterBody localBody = self.GetComponent<CharacterBody>();
+            if (localBody == null)
             {
-                Debug.LogWarning("AutoScrapper: NetworkIdentity is null. Cannot sync config.");
-                return;
-            }
-            new ConfigSync(identity.netId, config).Send(NetworkDestination.Server);
-        }
-
-        /// <summary>
-        /// Called when the user successfully interacts with an interactable object.
-        /// We only care about the scrapper, which is why we check for the name as the first thing.
-        /// interactable.name is the name of the GameObject, so it doesn't fall under localization.
-        /// </summary>
-        private void Interactor_PerformInteraction(On.RoR2.Interactor.orig_PerformInteraction orig, Interactor self,
-            GameObject interactable)
-        {
-            if (!config.ModEnabled)
-            {
+                Debug.LogWarning("AutoScrapper: Local body is null. Cannot scrap items automatically.");
                 orig(self, interactable);
                 return;
             }
-            
-            if (interactable.name.StartsWith("Scrapper"))
+
+            // Get the player's inventory
+            Inventory inventory = localBody.inventory;
+
+            // We track whether an item was scrapped or not.
+            bool itemScrapped = false;
+            ScrapperReportCount reportCount = new ScrapperReportCount();
+            Dictionary<ItemIndex, int> itemsToRemove = new Dictionary<ItemIndex, int>();
+
+            // We have to go backwards, as Removing an item actually removes it from the array.
+            // This is not exactly performance friendly, but it works.
+            // Sadly, we cannot really change that.
+            for (int i = inventory.itemAcquisitionOrder.Count - 1; i >= 0; i--)
             {
-                CharacterBody localBody = self.GetComponent<CharacterBody>();
-                if (localBody == null)
+                // itemAcquisitionOrder tells us which items we need to check.
+                // By using GetItemCount, we can check how many items of the given type we have.
+                ItemIndex itemId = inventory.itemAcquisitionOrder[i];
+                int itemCount = inventory.GetItemCount(itemId);
+
+                // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
+                if (itemCount == 0)
+                    continue;
+
+                // We get the limit from the config
+                int itemLimit = config.GetLimit(itemId);
+
+                // If the limit is -1, we don't scrap the item.
+                if (itemLimit <= -1)
+                    continue;
+
+                ItemDef itemDef = ItemCatalog.GetItemDef(itemId);
+                int count = itemCount - itemLimit;
+
+                // If the item count is less than or equal to the limit, we scrap it.
+                if (ScrapItem(itemsToRemove, reportCount, itemDef, count))
                 {
-                    Debug.LogWarning("AutoScrapper: Local body is null. Cannot scrap items automatically.");
-                    orig(self, interactable);
+                    itemScrapped = true;
+                }
+            }
+
+            // If an item was scrapped and the config says to keep the scrapper closed, we return here.
+            if (itemScrapped)
+            {
+                new ScrapSync(localBody.networkIdentity.netId, reportCount, itemsToRemove).Send(NetworkDestination
+                    .Server);
+
+                if (config.KeepScrapperClosed)
                     return;
-                }
-
-                // Get the player's inventory
-                Inventory inventory = localBody.inventory;
-
-                // We track whether an item was scrapped or not.
-                bool itemScrapped = false;
-                ScrapperReportCount reportCount = new ScrapperReportCount();
-
-                // We have to go backwards, as Removing an item actually removes it from the array.
-                // This is not exactly performance friendly, but it works.
-                // Sadly, we cannot really change that.
-                for (int i = inventory.itemAcquisitionOrder.Count - 1; i >= 0; i--)
-                {
-                    // itemAcquisitionOrder tells us which items we need to check.
-                    // By using GetItemCount, we can check how many items of the given type we have.
-                    ItemIndex itemId = inventory.itemAcquisitionOrder[i];
-                    int itemCount = inventory.GetItemCount(itemId);
-
-                    // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
-                    if (itemCount == 0)
-                        continue;
-
-                    // We get the limit from the config
-                    int itemLimit = config.GetLimit(itemId);
-
-                    // If the limit is -1, we don't scrap the item.
-                    if (itemLimit <= -1)
-                        continue;
-                    
-                    ItemDef itemDef = ItemCatalog.GetItemDef(itemId);
-                    int count = itemCount - itemLimit;
-
-                    // If the item count is less than or equal to the limit, we scrap it.
-                    if (ScrapItem(inventory, itemDef, count))
-                    {
-                        itemScrapped = true;
-                        reportCount.Add(itemDef.tier, count);
-                    }
-                }
-
-                // If an item was scrapped and the config says to keep the scrapper closed, we return here.
-                if (itemScrapped)
-                {
-                    ReportResults(localBody.GetUserName(), reportCount);
-
-                    if (config.KeepScrapperClosed)
-                        return;
-                }
             }
-
-            // Open the scrapper as normal.
-            orig(self, interactable);
         }
 
-        /// <summary>
-        /// Scraps given item in the player's inventory.
-        /// </summary>
-        /// <param name="playerInventory">Inventory to take items from</param>
-        /// <param name="itemDef">Definition of the item to scrap</param>
-        /// <param name="count">Amount of the item to scrap</param>
-        /// <returns>True if an item was scrapped</returns>
-        private bool ScrapItem(Inventory playerInventory, ItemDef itemDef, int count)
-        {
-            // If there is nothing to scrap (or we somehow got a negative number), we can't scrap it.
-            if (count <= 0)
-                return false;
+        // Open the scrapper as normal.
+        orig(self, interactable);
+    }
 
-            // If the item is a scrap item, we can't scrap it.
-            if (Utility.IsScrap(itemDef.itemIndex))
-                return false;
+    /// <summary>
+    /// Scraps given item in the player's inventory.
+    /// </summary>
+    /// <param name="playerInventory">Inventory to take items from</param>
+    /// <param name="itemDef">Definition of the item to scrap</param>
+    /// <param name="count">Amount of the item to scrap</param>
+    /// <returns>True if an item was scrapped</returns>
+    [Client]
+    private bool ScrapItem(Dictionary<ItemIndex, int> itemsToRemove, ScrapperReportCount report, ItemDef itemDef,
+        int count)
+    {
+        // If there is nothing to scrap (or we somehow got a negative number), we can't scrap it.
+        if (count <= 0)
+            return false;
 
-            // If the item cannot be removed, we can't scrap it.
-            if (!itemDef.canRemove)
-                return false;
+        // If the item is a scrap item, we can't scrap it.
+        if (Utility.IsScrap(itemDef.itemIndex))
+            return false;
 
-            // If the item is consumed, we can't scrap it.
-            if (itemDef.isConsumed)
-                return false;
-            
-            // If the item is blacklisted, ignore it.
-            if (Utility.BLACKLIST.Contains(itemDef.name))
-                return false;
+        // If the item cannot be removed, we can't scrap it.
+        if (!itemDef.canRemove)
+            return false;
 
-            // We get the item tier (we don't need to get it if the previous checks failed).
-            ItemTier itemTier = itemDef.tier;
+        // If the item is consumed, we can't scrap it.
+        if (itemDef.isConsumed)
+            return false;
 
-            // We get the scrap index for the given item tier.
-            ItemIndex scrapIndex = Utility.GetScrapItemIndex(itemTier);
+        // If the item is blacklisted, ignore it.
+        if (Utility.BLACKLIST.Contains(itemDef.name))
+            return false;
 
-            // Scrap index being None means the item is of a tier that cannot be scrapped.
-            if (scrapIndex == ItemIndex.None)
-                return false;
+        // We get the item tier (we don't need to get it if the previous checks failed).
+        ItemTier itemTier = itemDef.tier;
 
-            // We remove the item from the player's inventory - only if everything else succeeded.
-            playerInventory.RemoveItem(itemDef.itemIndex, count);
-            // Then we give the player the scrap item for the given tier.
-            playerInventory.GiveItem(scrapIndex, count);
+        // We get the scrap index for the given item tier.
+        ItemIndex scrapIndex = Utility.GetScrapItemIndex(itemTier);
 
-            // We return true to indicate that we scrapped an item.
-            return true;
-        }
+        // Scrap index being None means the item is of a tier that cannot be scrapped.
+        if (scrapIndex == ItemIndex.None)
+            return false;
 
-        /// <summary>
-        /// We cannot simply "setup" the config as it is dynamic.
-        /// For this reason we need to call the setup method after all equipment was loaded.
-        /// </summary>
-        private void ItemCatalog_SetItemRelationships(On.RoR2.ItemCatalog.orig_SetItemRelationships orig,
-            ItemRelationshipProvider[] newProviders)
-        {
-            orig(newProviders);
-            config = new AutoScrapperConfig();
-        }
+        report.Add(itemTier, count);
+        itemsToRemove.Add(itemDef.itemIndex, count);
 
-        /// <summary>
-        /// Reports the results of scrapping into the chat window.
-        /// </summary>
-        private void ReportResults(string userName, ScrapperReportCount count)
-        {
-            if (!config.ReportEnabled)
-                return;
-            
-            List<string> parts = count.GetReportParts();
-            
-            int partsCount = parts.Count;
-            if (partsCount == 0)
-                return;
-            
-            string result = "<color=#2083fc>" + userName + "</color> <color=#DDDDDD>" + Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
-            
-            if (partsCount == 1)
-                result += parts[0] + ".";
-            else if (partsCount == 2)
-                result += parts[0] + " " + Language.GetString("AUTO_SCRAPPER_AND") + " " + parts[1] + ".";
-            else if (partsCount > 2)
-            {
-                for (int i = 0; i < partsCount; i++)
-                {
-                    if (i > 0)
-                    {
-                        if (i == partsCount - 1)
-                            result += ", " + Language.GetString("AUTO_SCRAPPER_AND") + " ";
-                        else
-                            result += ", ";
-                    }
-                    result += parts[i];
-                }
-                result += ".";
-            }
-            result += "</color>";
-
-            Chat.SimpleChatMessage chat = new Chat.SimpleChatMessage();
-            chat.baseToken = result;
-            
-            Chat.SendBroadcastChat(chat);
-        }
+        // We return true to indicate that we scrapped an item.
+        return true;
     }
 }

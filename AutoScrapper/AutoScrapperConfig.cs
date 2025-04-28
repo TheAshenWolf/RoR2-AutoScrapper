@@ -23,7 +23,7 @@ namespace AutoScrapper
         // General configuration
         private ConfigEntry<bool> _keepScrapperClosedConfig;
         private ConfigEntry<bool> _modEnabledConfig;
-        private ConfigEntry<bool> _reportEnabledConfig;
+        // private ConfigEntry<bool> _reportEnabledConfig;
         
         // We use these arrays to store the items for each tier
         private ItemIndex[] _whiteItems;
@@ -65,14 +65,14 @@ namespace AutoScrapper
                 new ConfigDescription("Who likes restarting the game just to see what mod does what, right? \n"
                                       + "Just untick this box and the mod won't do anything."));
             
-            _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
-                new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
+            // _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
+            //     new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
 
             if (RiskOfOptionsCompatibility.Enabled)
             {
                 RiskOfOptionsCompatibility.AddBoolOption(_modEnabledConfig);
                 RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
-                RiskOfOptionsCompatibility.AddBoolOption(_reportEnabledConfig);
+                // RiskOfOptionsCompatibility.AddBoolOption(_reportEnabledConfig);
             }
             
             // We count the total amount of items and create a dictionary for the config entries
@@ -176,6 +176,6 @@ namespace AutoScrapper
         /// <summary>
         /// Gets the config entry for whether the mod should report the number of items scrapped.
         /// </summary>
-        public bool ReportEnabled => _reportEnabledConfig.Value;
+        // public bool ReportEnabled => _reportEnabledConfig.Value;
     }
 }
