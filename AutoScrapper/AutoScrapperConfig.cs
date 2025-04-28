@@ -3,6 +3,7 @@ using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using RoR2;
+using UnityEngine.Networking;
 
 namespace AutoScrapper
 {
@@ -11,15 +12,18 @@ namespace AutoScrapper
     /// </summary>
     public class AutoScrapperConfig
     {
+        public Dictionary<NetworkInstanceId, Dictionary<string, bool>> clientGeneralConfigs;
+        public Dictionary<NetworkInstanceId, Dictionary<string, int>> clientItemConfigs;
+
         private ConfigFile _config;
 
         /// We use a dictionary so we can easily look up the item's config by its index
-        private Dictionary<ItemIndex, ConfigEntry<int>> _configEntries;
+        public Dictionary<ItemIndex, ConfigEntry<int>> configEntries;
         
         // General configuration
         private ConfigEntry<bool> _keepScrapperClosedConfig;
         private ConfigEntry<bool> _modEnabledConfig;
-        private ConfigEntry<bool> _reportEnabledConfig;
+        // private ConfigEntry<bool> _reportEnabledConfig;
         
         // We use these arrays to store the items for each tier
         private ItemIndex[] _whiteItems;
@@ -32,6 +36,9 @@ namespace AutoScrapper
         /// </summary>
         public AutoScrapperConfig()
         {
+            clientGeneralConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, bool>>();
+            clientItemConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, int>>();
+
             SetupConfig();
         }
 
@@ -58,24 +65,24 @@ namespace AutoScrapper
                 new ConfigDescription("Who likes restarting the game just to see what mod does what, right? \n"
                                       + "Just untick this box and the mod won't do anything."));
             
-            _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
-                new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
+            // _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
+            //     new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
 
             if (RiskOfOptionsCompatibility.Enabled)
             {
                 RiskOfOptionsCompatibility.AddBoolOption(_modEnabledConfig);
                 RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
-                RiskOfOptionsCompatibility.AddBoolOption(_reportEnabledConfig);
+                // RiskOfOptionsCompatibility.AddBoolOption(_reportEnabledConfig);
             }
             
             // We count the total amount of items and create a dictionary for the config entries
             int itemsTotal = _whiteItems.Length + _greenItems.Length + _redItems.Length + _yellowItems.Length;
-            _configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
+            configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
 
-            CreateItemGroupConfigs("White Items", _whiteItems, _configEntries);
-            CreateItemGroupConfigs("Green Items", _greenItems, _configEntries);
-            CreateItemGroupConfigs("Red Items", _redItems, _configEntries);
-            CreateItemGroupConfigs("Yellow Items", _yellowItems, _configEntries);
+            CreateItemGroupConfigs("White Items", _whiteItems, configEntries);
+            CreateItemGroupConfigs("Green Items", _greenItems, configEntries);
+            CreateItemGroupConfigs("Red Items", _redItems, configEntries);
+            CreateItemGroupConfigs("Yellow Items", _yellowItems, configEntries);
         }
 
         /// <summary>
@@ -152,7 +159,7 @@ namespace AutoScrapper
         /// </summary>
         public int GetLimit(ItemIndex index)
         {
-            return _configEntries.GetValueOrDefault(index, null)?.Value ?? -1;
+            return configEntries.GetValueOrDefault(index, null)?.Value ?? -1;
         }
         
         /// <summary>
@@ -160,15 +167,10 @@ namespace AutoScrapper
         /// automatically scrapping.
         /// </summary>
         public bool KeepScrapperClosed => _keepScrapperClosedConfig.Value;
-        
+
         /// <summary>
         /// Gets the config entry for whether the mod is enabled.
         /// </summary>
         public bool ModEnabled => _modEnabledConfig.Value;
-        
-        /// <summary>
-        /// Gets the config entry for whether the mod should report the number of items scrapped.
-        /// </summary>
-        public bool ReportEnabled => _reportEnabledConfig.Value;
     }
 }
