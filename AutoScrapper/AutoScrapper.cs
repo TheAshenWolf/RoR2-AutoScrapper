@@ -136,8 +136,9 @@ public class AutoScrapper : BaseUnityPlugin
                 int count = itemCount - itemLimit;
 
                 // If the item count is less than or equal to the limit, we scrap it.
-                if (ScrapItem(itemsToRemove, reportCount, itemDef, count))
+                if (ScrapItem(itemsToRemove, itemDef, count))
                 {
+                    reportCount.Add(itemDef.tier, count);
                     itemScrapped = true;
                 }
             }
@@ -160,12 +161,12 @@ public class AutoScrapper : BaseUnityPlugin
     /// <summary>
     /// Scraps given item in the player's inventory.
     /// </summary>
-    /// <param name="playerInventory">Inventory to take items from</param>
+    /// <param name="itemsToRemove">Dictionary reference to the items to remove</param>
     /// <param name="itemDef">Definition of the item to scrap</param>
     /// <param name="count">Amount of the item to scrap</param>
     /// <returns>True if an item was scrapped</returns>
     [Client]
-    private bool ScrapItem(Dictionary<ItemIndex, int> itemsToRemove, ScrapperReportCount report, ItemDef itemDef,
+    private bool ScrapItem(Dictionary<ItemIndex, int> itemsToRemove, ItemDef itemDef,
         int count)
     {
         // If there is nothing to scrap (or we somehow got a negative number), we can't scrap it.
@@ -198,7 +199,6 @@ public class AutoScrapper : BaseUnityPlugin
         if (scrapIndex == ItemIndex.None)
             return false;
 
-        report.Add(itemTier, count);
         itemsToRemove.Add(itemDef.itemIndex, count);
 
         // We return true to indicate that we scrapped an item.
