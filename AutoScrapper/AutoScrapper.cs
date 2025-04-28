@@ -78,13 +78,6 @@ public class AutoScrapper : BaseUnityPlugin
     private void Interactor_AttemptInteraction(On.RoR2.Interactor.orig_AttemptInteraction orig, Interactor self,
         GameObject interactable)
     {
-        // TODO: This is probably the reason why host's items are not being scrapped at all.
-        if (NetworkServer.active) // There is nothing to do on the server
-        {
-            orig(self, interactable);
-            return;
-        }
-
         // Only run on client
         // 1. Check if the mod is enabled
         // 2. Attempt to scrap all items generating KVP<string, int> for each item
