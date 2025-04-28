@@ -1,7 +1,7 @@
 {
   "strings": {
     "AUTO_SCRAPPER_MOD_DESCRIPTION": "Ever felt tired of scrapping the same item over an over again at every scrapper? <br>Well fret no more, as <color=#FF0000>AutoScrapper</color> is here to save your time. Simply set a limit for every item in the config and let the automagic happen.",
-    "AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED": "Automagically scrapped",
+    "AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED": "automagically scrapped",
     "AUTO_SCRAPPER_WHITE_ITEMS": "<style=cStack>{0}</style> <color=#FFFFFF>white item</color>",
     "AUTO_SCRAPPER_GREEN_ITEMS": "<style=cStack>{0}</style> <color=#00FF00>green item</color>",
     "AUTO_SCRAPPER_RED_ITEMS" : "<style=cStack>{0}</style> <color=#FF0000>red item</color>",
