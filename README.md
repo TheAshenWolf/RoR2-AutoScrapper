@@ -1,6 +1,6 @@
 # Auto Scrapper
 
-![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-blue)
+![Version 0.1.1](https://img.shields.io/badge/version-0.1.1-blue)
 ![QoL](https://img.shields.io/badge/Quality%20of%20Life-blue)
 ![Client and Server Side](https://img.shields.io/badge/Client%20and%20Server%20Side-blue)
 
