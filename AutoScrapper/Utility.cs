@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RoR2;
 
 namespace AutoScrapper;
@@ -7,6 +8,14 @@ namespace AutoScrapper;
 /// </summary>
 public static class Utility
 {
+    public const string COLOR_TEXT = "<color=#DDDDDD>";
+    public const string COLOR_WHITE = "<color=#FFFFFF>";
+    public const string COLOR_GREEN = "<color=#00FF00>";
+    public const string COLOR_RED = "<color=#FF0000>";
+    public const string COLOR_YELLOW = "<color=#FFFF00>";
+    public const string COLOR_PLAYER = "<color=#2083fc>";
+    
+    
     /// <summary>
     /// Some special items that shouldn't be scrapped still bypass the filters. We list them here.
     /// </summary>
@@ -48,11 +57,11 @@ public static class Utility
     {
         string color = item.tier switch
         {
-                ItemTier.Tier1 => "<color=#FFFFFF>",
-                ItemTier.Tier2 => "<color=#00FF00>",
-                ItemTier.Tier3 => "<color=#FF0000>",
-                ItemTier.Boss => "<color=#FFFF00>",
-                _ => "<color=#FFFFFF>"
+                ItemTier.Tier1 => COLOR_WHITE,
+                ItemTier.Tier2 => COLOR_GREEN,
+                ItemTier.Tier3 => COLOR_RED,
+                ItemTier.Boss => COLOR_YELLOW,
+                _ => COLOR_WHITE
         };
 
         return $"{color}{Language.GetString(item.nameToken)}</color>";

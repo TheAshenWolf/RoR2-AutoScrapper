@@ -149,9 +149,9 @@ namespace AutoScrapper
         private ConfigDescription GetDescription(ItemDef item)
         {
             return new ConfigDescription(
-                $"{Utility.GetFormattedName(item)} <color=#DDDDDD>amount to keep before scrapping.</color> \n\n" +
+                $"{Utility.GetFormattedName(item)} {Utility.COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
                 $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
-                $"<color=#DDDDDD>0 = scrap all, -1 = don't scrap</color>");
+                $"{Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
         }
         
         /// <summary>
