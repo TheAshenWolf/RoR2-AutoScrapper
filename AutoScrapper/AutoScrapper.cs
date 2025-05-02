@@ -146,7 +146,7 @@ public class AutoScrapper : BaseUnityPlugin
             // If an item was scrapped and the config says to keep the scrapper closed, we return here.
             if (itemScrapped)
             {
-                new ScrapSync(localBody.networkIdentity.netId, reportCount, itemsToRemove).Send(NetworkDestination
+                new ScrapSync(localBody.networkIdentity.netId, itemsToRemove).Send(NetworkDestination
                     .Server);
 
                 if (config.KeepScrapperClosed)

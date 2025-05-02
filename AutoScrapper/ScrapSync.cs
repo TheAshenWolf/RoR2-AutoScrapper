@@ -6,74 +6,83 @@ using UnityEngine.Networking;
 
 namespace AutoScrapper
 {
+    /// <summary>
+    /// INetMessage which takes the items to remove from the client and
+    /// sends them to the server.
+    /// </summary>
     public class ScrapSync : INetMessage
     {
+        /// <summary>
+        /// This constructor is only used to register the message type.
+        /// </summary>
         public ScrapSync()
         {
-            NetworkId = NetworkInstanceId.Invalid;
-            ReportCount = new ScrapperReportCount();
-            ItemsToRemove = new Dictionary<ItemIndex, int>();
+            _networkId = NetworkInstanceId.Invalid;
+            _itemsToRemove = new Dictionary<ItemIndex, int>();
         }
 
+        /// <summary>
+        /// This is the proper constructor to use when sending the message.
+        /// </summary>
+        /// <param name="networkId">Network ID of the client</param>
+        /// <param name="itemsToRemove">Dictionary of index:count pairs with information about items to remove</param>
         public ScrapSync(NetworkInstanceId networkId,
-            ScrapperReportCount reportCount,
             Dictionary<ItemIndex, int> itemsToRemove)
         {
-            NetworkId = networkId;
-            ReportCount = reportCount;
-            ItemsToRemove = itemsToRemove;
+            _networkId = networkId;
+            _itemsToRemove = itemsToRemove;
         }
 
 
-        public NetworkInstanceId NetworkId { get; private set; }
-        public ScrapperReportCount ReportCount { get; private set; }
-        public Dictionary<ItemIndex, int> ItemsToRemove { get; private set; }
+        private NetworkInstanceId _networkId;
+        private Dictionary<ItemIndex, int> _itemsToRemove;
 
+        /// <inheritdoc/>
         public void Serialize(NetworkWriter writer)
         {
-            writer.Write(NetworkId);
-            writer.Write(ReportCount.white);
-            writer.Write(ReportCount.green);
-            writer.Write(ReportCount.red);
-            writer.Write(ReportCount.yellow);
+            writer.Write(_networkId);
 
-            writer.Write(ItemsToRemove.Count);
-            foreach (KeyValuePair<ItemIndex, int> item in ItemsToRemove)
+            writer.Write(_itemsToRemove.Count);
+            foreach (KeyValuePair<ItemIndex, int> item in _itemsToRemove)
             {
                 writer.Write(item.Key);
                 writer.Write(item.Value);
             }
         }
 
+        /// <inheritdoc/>
         public void Deserialize(NetworkReader reader)
         {
-            NetworkId = reader.ReadNetworkId();
-            ReportCount = new ScrapperReportCount()
-            {
-                white = reader.ReadInt32(),
-                green = reader.ReadInt32(),
-                red = reader.ReadInt32(),
-                yellow = reader.ReadInt32()
-            };
+            _networkId = reader.ReadNetworkId();
 
             int count = reader.ReadInt32();
-            ItemsToRemove = new Dictionary<ItemIndex, int>(count);
+            _itemsToRemove = new Dictionary<ItemIndex, int>(count);
             for (int i = 0; i < count; i++)
             {
                 ItemIndex key = reader.ReadItemIndex();
                 int value = reader.ReadInt32();
-                ItemsToRemove.Add(key, value);
+                _itemsToRemove.Add(key, value);
             }
         }
-
+        
+        /// <summary>
+        /// If the message is received on the client, we ignore it.
+        /// On the server, we get the player determined by the Network ID.
+        /// Based on the list of items to remove, we remove the items from the player's inventory
+        /// and calculate the amount of scrap to give.
+        ///
+        /// Doing it this way we prevent the client from having authority about the items they receive.
+        /// If they alter the packet to delete less items, they will receive less scrap.
+        /// </summary>
         public void OnReceived()
         {
             if (!NetworkServer.active) return;
 
             // We need to get the player from the network ID
-            GameObject player = NetworkServer.FindLocalObject(NetworkId);
+            GameObject player = NetworkServer.FindLocalObject(_networkId);
             CharacterBody localBody = player?.GetComponent<CharacterBody>();
 
+            // Local body is the player's character
             if (localBody == null)
             {
                 Debug.LogWarning("AutoScrapper: Local body is null. Cannot scrap items automatically.");
@@ -87,76 +96,33 @@ namespace AutoScrapper
                 Debug.LogWarning("AutoScrapper: Local inventory is null. Cannot scrap items automatically.");
                 return;
             }
-
-            foreach (KeyValuePair<ItemIndex, int> pair in ItemsToRemove)
+            
+            // The client only tells us what items to remove. This is the step where we determine 
+            // how much scrap to give
+            ScrapperReportCount report = new ScrapperReportCount();
+            foreach ((ItemIndex itemId, int itemCount) in _itemsToRemove)
             {
-                ItemIndex itemId = pair.Key;
-                int itemCount = pair.Value;
+                // Add it into the report struct
+                report.Add(ItemCatalog.GetItemDef(itemId).tier, itemCount);
 
                 // We have to go backwards, as Removing an item actually removes it from the array.
                 // This is not exactly performance friendly, but it works.
                 // Sadly, we cannot really change that.
                 inventory.RemoveItem(itemId, itemCount);
             }
-            // TODO: Items were removed properly upon scrapping (or at least it looked that way); for the client
-            // TODO: However, the player did not receive any scrap.
 
             // Add scrap
-            if (ReportCount.white > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapWhite.itemIndex, ReportCount.white);
-            if (ReportCount.green > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapGreen.itemIndex, ReportCount.green);
-            if (ReportCount.red > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapRed.itemIndex, ReportCount.red);
-            if (ReportCount.yellow > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapYellow.itemIndex, ReportCount.yellow);
+            if (report.white > 0)
+                inventory.GiveItem(RoR2Content.Items.ScrapWhite.itemIndex, report.white);
+            if (report.green > 0)
+                inventory.GiveItem(RoR2Content.Items.ScrapGreen.itemIndex, report.green);
+            if (report.red > 0)
+                inventory.GiveItem(RoR2Content.Items.ScrapRed.itemIndex, report.red);
+            if (report.yellow > 0)
+                inventory.GiveItem(RoR2Content.Items.ScrapYellow.itemIndex, report.yellow);
 
             // Report the results to the chat
-            ReportResults(localBody.GetUserName(), ReportCount);
-        }
-
-        /// <summary>
-        /// Reports the results of scrapping into the chat window.
-        /// </summary>
-        private void ReportResults(string userName, ScrapperReportCount count)
-        {
-            List<string> parts = count.GetReportParts();
-
-            int partsCount = parts.Count;
-            if (partsCount == 0)
-                return;
-
-            string result = "<color=#2083fc>" + userName + "</color> <color=#DDDDDD>" +
-                            Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
-
-            if (partsCount == 1)
-                result += parts[0] + ".";
-            else if (partsCount == 2)
-                result += parts[0] + " " + Language.GetString("AUTO_SCRAPPER_AND") + " " + parts[1] + ".";
-            else if (partsCount > 2)
-            {
-                for (int i = 0; i < partsCount; i++)
-                {
-                    if (i > 0)
-                    {
-                        if (i == partsCount - 1)
-                            result += ", " + Language.GetString("AUTO_SCRAPPER_AND") + " ";
-                        else
-                            result += ", ";
-                    }
-
-                    result += parts[i];
-                }
-
-                result += ".";
-            }
-
-            result += "</color>";
-
-            Chat.SimpleChatMessage chat = new Chat.SimpleChatMessage();
-            chat.baseToken = result;
-
-            Chat.SendBroadcastChat(chat);
+            Utility.ReportResults(localBody.GetUserName(), report);
         }
     }
 }

@@ -66,4 +66,48 @@ public static class Utility
 
         return $"{color}{Language.GetString(item.nameToken)}</color>";
     }
+    
+    /// <summary>
+    /// Reports the results of scrapping into the chat window.
+    /// </summary>
+    public static void ReportResults(string userName, ScrapperReportCount count)
+    {
+        List<string> parts = count.GetReportParts();
+
+        int partsCount = parts.Count;
+        if (partsCount == 0)
+            return;
+
+        string result = COLOR_PLAYER + userName + "</color> " + COLOR_TEXT + 
+                        Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+
+        if (partsCount == 1)
+            result += parts[0] + ".";
+        else if (partsCount == 2)
+            result += parts[0] + " " + Language.GetString("AUTO_SCRAPPER_AND") + " " + parts[1] + ".";
+        else if (partsCount > 2)
+        {
+            for (int i = 0; i < partsCount; i++)
+            {
+                if (i > 0)
+                {
+                    if (i == partsCount - 1)
+                        result += ", " + Language.GetString("AUTO_SCRAPPER_AND") + " ";
+                    else
+                        result += ", ";
+                }
+
+                result += parts[i];
+            }
+
+            result += ".";
+        }
+
+        result += "</color>";
+
+        Chat.SimpleChatMessage chat = new Chat.SimpleChatMessage();
+        chat.baseToken = result;
+
+        Chat.SendBroadcastChat(chat);
+    }
 }
