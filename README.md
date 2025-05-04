@@ -24,9 +24,9 @@ While [Risk of Options](https://thunderstore.io/package/Rune580/Risk_Of_Options/
 
 
 ## Installation
-You can install the mod using the [Thunderstore Mod Manager](https://www.overwolf.com/app/thunderstore-thunderstore_mod_manager) (Overwolf) or [R2 Modman](https://thunderstore.io/package/ebkr/r2modman/) (standalone) by following [this]() link and clicking on "Install with Mod Manager".
+You can install the mod using the [Thunderstore Mod Manager](https://www.overwolf.com/app/thunderstore-thunderstore_mod_manager) (Overwolf) or [R2 Modman](https://thunderstore.io/package/ebkr/r2modman/) (standalone) by following [this](https://thunderstore.io/package/TheAshenWolf/AutoScrapper/) link and clicking on "Install with Mod Manager".
 
-If you wish to install the mod manually, you can download it [here](). After downloading and installing all dependencies, extract the zip file into the `BepInEx/plugins` folder of your game directory.
+If you wish to install the mod manually, you can download it [here](https://thunderstore.io/package/TheAshenWolf/AutoScrapper/). After downloading and installing all dependencies, extract the zip file into the `BepInEx/plugins` folder of your game directory.
 
 ## How to use
 
