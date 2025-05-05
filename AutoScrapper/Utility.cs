@@ -124,8 +124,8 @@ public static class Utility
     public static ConfigDescription GetDescription(ItemDef item)
     {
         return new ConfigDescription(
-            $"{Utility.GetFormattedName(item)} {COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
+            $"{GetFormattedName(item)} {COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
             $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
-            $"{Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
+            $"{COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
     }
 }
