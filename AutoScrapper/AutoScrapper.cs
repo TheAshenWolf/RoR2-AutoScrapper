@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
+using On.RoR2.UI.MainMenu;
 using R2API;
 using R2API.Networking;
 using R2API.Networking.Interfaces;
@@ -35,7 +36,7 @@ public class AutoScrapper : BaseUnityPlugin
     [Client]
     private void Awake()
     {
-        On.RoR2.ItemCatalog.SetItemRelationships += ItemCatalog_SetItemRelationships;
+        MainMenuController.Awake += MainMenuController_Awake;
         On.RoR2.Interactor.AttemptInteraction += Interactor_AttemptInteraction;
 
         if (RiskOfOptionsCompatibility.Enabled)
@@ -53,19 +54,19 @@ public class AutoScrapper : BaseUnityPlugin
     [Client]
     private void OnDestroy()
     {
-        On.RoR2.ItemCatalog.SetItemRelationships -= ItemCatalog_SetItemRelationships;
+        MainMenuController.Awake -= MainMenuController_Awake;
         On.RoR2.Interactor.AttemptInteraction -= Interactor_AttemptInteraction;
     }
 
     /// <summary>
     /// We cannot simply "setup" the config as it is dynamic.
     /// For this reason we need to call the setup method after all equipment was loaded.
+    /// We do this as soon as the main menu is loaded. This also makes sure all modded items are loaded.
     /// </summary>
     [Client]
-    private void ItemCatalog_SetItemRelationships(On.RoR2.ItemCatalog.orig_SetItemRelationships orig,
-        ItemRelationshipProvider[] newProviders)
+    private void MainMenuController_Awake(MainMenuController.orig_Awake orig, RoR2.UI.MainMenu.MainMenuController self)
     {
-        orig(newProviders);
+        orig(self);
         config = new AutoScrapperConfig();
     }
     
