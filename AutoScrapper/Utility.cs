@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BepInEx.Configuration;
 using RoR2;
 
 namespace AutoScrapper;
@@ -109,5 +110,22 @@ public static class Utility
         chat.baseToken = result;
 
         Chat.SendBroadcastChat(chat);
+    }
+    
+    /// <summary>
+    /// To help with readability, this method creates an identical description for each item.
+    /// <example>
+    /// [name] amount to keep before scrapping. <br/>
+    /// > [item_description] <br/>
+    /// 0 = scrap all, -1 = don't scrap
+    /// </example>
+    /// </summary>
+    /// <param name="item">The item definition to use in description creation</param>
+    public static ConfigDescription GetDescription(ItemDef item)
+    {
+        return new ConfigDescription(
+            $"{Utility.GetFormattedName(item)} {COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
+            $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
+            $"{Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
     }
 }

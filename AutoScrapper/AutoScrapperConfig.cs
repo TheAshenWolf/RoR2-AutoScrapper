@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using RoR2;
+using RoR2.ContentManagement;
 using UnityEngine.Networking;
 
 namespace AutoScrapper
@@ -26,10 +28,10 @@ namespace AutoScrapper
         // private ConfigEntry<bool> _reportEnabledConfig;
         
         // We use these arrays to store the items for each tier
-        private ItemIndex[] _whiteItems;
-        private ItemIndex[] _greenItems;
-        private ItemIndex[] _redItems;
-        private ItemIndex[] _yellowItems;
+        private ItemDef[] _whiteItems;
+        private ItemDef[] _greenItems;
+        private ItemDef[] _redItems;
+        private ItemDef[] _yellowItems;
 
         /// <summary>
         /// Upon construction, we set up the config and bind the events.
@@ -79,6 +81,7 @@ namespace AutoScrapper
             int itemsTotal = _whiteItems.Length + _greenItems.Length + _redItems.Length + _yellowItems.Length;
             configEntries = new Dictionary<ItemIndex, ConfigEntry<int>>(itemsTotal);
 
+            // Dictionary is a reference type; passing it as a parameter allows us to add into it
             CreateItemGroupConfigs("White Items", _whiteItems, configEntries);
             CreateItemGroupConfigs("Green Items", _greenItems, configEntries);
             CreateItemGroupConfigs("Red Items", _redItems, configEntries);
@@ -90,11 +93,43 @@ namespace AutoScrapper
         /// </summary>
         private void GatherItems()
         {
-            _whiteItems = ItemCatalog.tier1ItemList.ToArray();
-            _greenItems = ItemCatalog.tier2ItemList.ToArray();
-            _redItems = ItemCatalog.tier3ItemList.ToArray();
-            _yellowItems = ItemCatalog.allItemDefs.Where(def => def.tier == ItemTier.Boss).Select(def => def.itemIndex)
-                .ToArray();
+            ItemDef[] itemDefinitions = ContentManager._itemDefs;
+            int count = itemDefinitions.Length;
+            
+            List<ItemDef> whiteItems = new List<ItemDef>(count);
+            List<ItemDef> greenItems = new List<ItemDef>(count);
+            List<ItemDef> redItems = new List<ItemDef>(count);
+            List<ItemDef> yellowItems = new List<ItemDef>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                ItemDef itemDef = itemDefinitions[i];
+                if (itemDef == null)
+                    continue;
+                
+                switch (itemDef.tier)
+                {
+                    case ItemTier.Tier1:
+                        whiteItems.Add(itemDef);
+                        break;
+                    case ItemTier.Tier2:
+                        greenItems.Add(itemDef);
+                        break;
+                    case ItemTier.Tier3:
+                        redItems.Add(itemDef);
+                        break;
+                    case ItemTier.Boss:
+                        yellowItems.Add(itemDef);
+                        break;
+                    default:
+                        continue;
+                }
+            }
+            
+            _whiteItems = whiteItems.ToArray();
+            _greenItems = greenItems.ToArray();
+            _redItems = redItems.ToArray();
+            _yellowItems = yellowItems.ToArray();
         }
 
         /// <summary>
@@ -103,7 +138,7 @@ namespace AutoScrapper
         /// <param name="section">Name of the section - same for each entry</param>
         /// <param name="items">An array of item ids. This method looks up required information itself</param>
         /// <param name="itemConfig">Link to an existing dictionary with the config. We save config data here</param>
-        private void CreateItemGroupConfigs(string section, ItemIndex[] items,
+        private void CreateItemGroupConfigs(string section, ItemDef[] items,
             Dictionary<ItemIndex, ConfigEntry<int>> itemConfig)
         {
             // First we gather all items for given section
@@ -113,15 +148,14 @@ namespace AutoScrapper
             for (int i = 0; i < itemCount; i++)
             {
                 // We get the item definition
-                ItemIndex itemIndex = items[i];
-                ItemDef item = ItemCatalog.GetItemDef(itemIndex);
+                ItemDef item = items[i];
 
                 // There is no point in creating a config entry for items that cannot be removed, are consumed or are hidden
                 if (!item.canRemove || item.isConsumed || item.hidden)
                     continue;
 
                 // We don't want scrap in the config
-                if (Utility.IsScrap(itemIndex))
+                if (Utility.IsScrap(item.itemIndex))
                     continue;
 
                 if (Utility.BLACKLIST.Contains(item.name))
@@ -130,28 +164,11 @@ namespace AutoScrapper
                 int defaultValue = ConfigOverrides.defaultOverrides.GetValueOrDefault(item.name, -1);
 
                 // Then we create a config entry for each item. We do not use translation here as this needs to be persistent for everyone regardless of locale.
-                ConfigEntry<int> config = _config.Bind(section, item.name, defaultValue, GetDescription(item));
-                itemConfig[itemIndex] = config;
+                ConfigEntry<int> config = _config.Bind(section, item.name, defaultValue, Utility.GetDescription(item));
+                itemConfig[item.itemIndex] = config;
                 if (RiskOfOptionsCompatibility.Enabled)
                     RiskOfOptionsCompatibility.AddIntOption(config);
             }
-        }
-
-        /// <summary>
-        /// To help with readability, this method creates an identical description for each item.
-        /// <example>
-        /// [name] amount to keep before scrapping. <br/>
-        /// > [item_description] <br/>
-        /// 0 = scrap all, -1 = don't scrap
-        /// </example>
-        /// </summary>
-        /// <param name="item">The item definition to use in description creation</param>
-        private ConfigDescription GetDescription(ItemDef item)
-        {
-            return new ConfigDescription(
-                $"{Utility.GetFormattedName(item)} {Utility.COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
-                $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
-                $"{Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
         }
         
         /// <summary>
