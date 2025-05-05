@@ -47,7 +47,7 @@ Setting the limit to 0 will scrap all items, setting it to -1 will disable scrap
 ### Without Risk of Options
 - The Config is located in the `BepInEx/config` folder of your game directory
 - You can open the config file with any text editor
-- Note: The item descriptions are styled for display in-game, so there are severa &lt;style&gt; and &lt;color&gt; tags present in the text making it harder to read.
+- Note: The item descriptions are styled for display in-game, so there are several &lt;style&gt; and &lt;color&gt; tags present in the text making it harder to read.
 - Set the limits for each item according to you needs and desires
 
 ## F&Q
