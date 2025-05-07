@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using BepInEx;
 using BepInEx.Configuration;
 using RoR2;
@@ -157,8 +155,18 @@ namespace AutoScrapper
                 // We don't want scrap in the config
                 if (Utility.IsScrap(item.itemIndex))
                     continue;
+                
+                bool isBlacklisted = false;
+                for (int blacklistIndex = 0, count = Utility.BLACKLIST.Length; blacklistIndex < count; blacklistIndex++)
+                {
+                    if (item.name == Utility.BLACKLIST[blacklistIndex])
+                    {
+                        isBlacklisted = true;
+                        break;
+                    }
+                }
 
-                if (Utility.BLACKLIST.Contains(item.name))
+                if (isBlacklisted)
                     continue;
 
                 int defaultValue = ConfigOverrides.defaultOverrides.GetValueOrDefault(item.name, -1);
