@@ -29,6 +29,7 @@ public class AutoScrapper : BaseUnityPlugin
 
     /// Link to the plugin's config file
     public AutoScrapperConfig config;
+    private bool _configInitialized = false;
 
     /// <summary>
     /// Scrapping.OnEnter is called when the player opens a scrapper.
@@ -67,7 +68,10 @@ public class AutoScrapper : BaseUnityPlugin
     private void MainMenuController_Awake(MainMenuController.orig_Awake orig, RoR2.UI.MainMenu.MainMenuController self)
     {
         orig(self);
+
+        if (_configInitialized) return;
         config = new AutoScrapperConfig();
+        _configInitialized = true;
     }
     
     /// <summary>
