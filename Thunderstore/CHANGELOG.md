@@ -1,3 +1,6 @@
+### AutoScrapper 0.2.1
+- Fixed double initialization error when returning to the main menu
+
 ### AutoScrapper 0.2.0
 - Fixed modded items not loading their names and descriptions
 

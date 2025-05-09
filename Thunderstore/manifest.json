@@ -1,7 +1,7 @@
 {
   "name": "AutoScrapper",
   "author": "TheAshenWolf",
-  "version_number": "0.2.0",
+  "version_number": "0.2.1",
   "website_url": "https://github.com/TheAshenWolf/RoR2-AutoScrapper",
   "description": "Automatically scrap items based on pre-selected item limits on each scrapper interaction. Risk of Options is not required, but highly recommended.",
   "dependencies": [
