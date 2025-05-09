@@ -52,7 +52,7 @@ Setting the limit to 0 will scrap all items, setting it to -1 will disable scrap
 
 ## F&Q
 - **Q: Does the mod work with modded items?**
-- A: The support for modded items is currently very limited and was not yet thoroughly tested. We are already aware of some minor issues.
+- A: It should. I did not test it thoroughly, but I did not experience any major issues playing with Starstorm 2.
 - **Q: Does the mod work with multiplayer?**
 - A: Yes. Both the host and the client need to have the mod installed.
 
