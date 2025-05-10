@@ -131,7 +131,7 @@ public class AutoScrapper : BaseUnityPlugin
                     continue;
 
                 // We get the limit from the config
-                int itemLimit = config.GetLimit(itemId);
+                int itemLimit = config.ScrapEverything ? 0 : config.GetLimit(itemId);
 
                 // If the limit is -1, we don't scrap the item.
                 if (itemLimit <= -1)

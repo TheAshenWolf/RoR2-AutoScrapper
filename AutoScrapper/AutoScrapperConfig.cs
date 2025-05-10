@@ -21,9 +21,12 @@ namespace AutoScrapper
         public Dictionary<ItemIndex, ConfigEntry<int>> configEntries;
         
         // General configuration
+        // Keeps the scrapper closed after auto-scrapping
         private ConfigEntry<bool> _keepScrapperClosedConfig;
+        // Disables the whole functionality of the mod. Priority 0.
         private ConfigEntry<bool> _modEnabledConfig;
-        // private ConfigEntry<bool> _reportEnabledConfig;
+        // Scraps everything. Priority 1.
+        private ConfigEntry<bool> _scrapEverythingConfig;
         
         // We use these arrays to store the items for each tier
         private ItemDef[] _whiteItems;
@@ -63,8 +66,12 @@ namespace AutoScrapper
             
             _modEnabledConfig = _config.Bind("General", "ModEnabled", true,
                 new ConfigDescription("Who likes restarting the game just to see what mod does what, right? \n"
-                                      + "Just untick this box and the mod won't do anything."));
+                                      + "Just untick this box and the mod won't do anything. \n\n This setting overrides <b>all</b> other settings."));
             
+            _scrapEverythingConfig = _config.Bind("General", "ScrapEverything", false,
+                new ConfigDescription("If this setting is enabled, all items will be scrapped. \n\n"
+                                      + "This setting overrides all individual item settings."));
+
             // _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
             //     new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
 
@@ -72,7 +79,7 @@ namespace AutoScrapper
             {
                 RiskOfOptionsCompatibility.AddBoolOption(_modEnabledConfig);
                 RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
-                // RiskOfOptionsCompatibility.AddBoolOption(_reportEnabledConfig);
+                RiskOfOptionsCompatibility.AddBoolOption(_scrapEverythingConfig);
             }
             
             // We count the total amount of items and create a dictionary for the config entries
@@ -197,5 +204,10 @@ namespace AutoScrapper
         /// Gets the config entry for whether the mod is enabled.
         /// </summary>
         public bool ModEnabled => _modEnabledConfig.Value;
+
+        /// <summary>
+        /// Gets the config entry for whether all items should be scrapped.
+        /// </summary>
+        public bool ScrapEverything => _scrapEverythingConfig.Value;
     }
 }
