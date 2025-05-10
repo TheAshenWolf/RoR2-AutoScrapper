@@ -1,3 +1,6 @@
+### AutoScrapper 0.3.0
+- Added the option to scrap all items without changing the individual item limits
+
 ### AutoScrapper 0.2.1
 - Fixed double initialization error when returning to the main menu
 
