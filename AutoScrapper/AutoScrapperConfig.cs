@@ -77,9 +77,9 @@ namespace AutoScrapper
 
             if (RiskOfOptionsCompatibility.Enabled)
             {
-                RiskOfOptionsCompatibility.AddBoolOption(_modEnabledConfig);
-                RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig);
-                RiskOfOptionsCompatibility.AddBoolOption(_scrapEverythingConfig);
+                RiskOfOptionsCompatibility.AddBoolOption(_modEnabledConfig, "AUTO_SCRAPPER_MOD_ENABLED_NAME", "AUTO_SCRAPPER_MOD_ENABLED_DESCRIPTION");
+                RiskOfOptionsCompatibility.AddBoolOption(_keepScrapperClosedConfig, "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_NAME", "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_DESCRIPTION");
+                RiskOfOptionsCompatibility.AddBoolOption(_scrapEverythingConfig, "AUTO_SCRAPPER_SCRAP_EVERYTHING_NAME", "AUTO_SCRAPPER_SCRAP_EVERYTHING_DESCRIPTION");
             }
             
             // We count the total amount of items and create a dictionary for the config entries
@@ -182,7 +182,8 @@ namespace AutoScrapper
                 ConfigEntry<int> config = _config.Bind(section, item.name, defaultValue, Utility.GetDescription(item));
                 itemConfig[item.itemIndex] = config;
                 if (RiskOfOptionsCompatibility.Enabled)
-                    RiskOfOptionsCompatibility.AddIntOption(config);
+                    // By leaving description as string.empty, the config description will be used
+                    RiskOfOptionsCompatibility.AddIntOption(config, item.nameToken, string.Empty/*, item.descriptionToken*/);
             }
         }
         

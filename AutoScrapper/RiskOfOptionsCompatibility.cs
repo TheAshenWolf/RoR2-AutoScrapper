@@ -71,18 +71,20 @@ namespace AutoScrapper
         /// Creates a new Int option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddIntOption(ConfigEntry<int> configEntry)
+        public static void AddIntOption(ConfigEntry<int> configEntry, string nameToken, string descriptionToken)
         {
-            ModSettingsManager.AddOption(new IntFieldOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            // ModSettingsManager.AddOption(new IntFieldOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            ModSettingsManager.AddOption(new IntFieldOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME, nameToken, descriptionToken);
         }
         
         /// <summary>
         /// Creates a new Bool option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddBoolOption(ConfigEntry<bool> configEntry)
+        public static void AddBoolOption(ConfigEntry<bool> configEntry, string nameToken, string descriptionToken)
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            // ModSettingsManager.AddOption(new CheckBoxOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            ModSettingsManager.AddOption(new CheckBoxOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME, nameToken, descriptionToken);
         }
     }
 }
