@@ -35,7 +35,14 @@ namespace AutoScrapper
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void SetModDescriptionToken(string descriptionToken)
         {
-            ModSettingsManager.SetModDescriptionToken(descriptionToken, AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            ModSettingsManager.SetModDescriptionToken(descriptionToken, AutoScrapper.PLUGIN_GUID,
+                AutoScrapper.PLUGIN_NAME);
+            
+            for (int i = 1; i < Utility.PROFILE_COUNT; i++)
+            {
+                ModSettingsManager.SetModDescriptionToken("AUTO_SCRAPPER_PROFILE_DESCRIPTION", Utility.GetProfileGUID(i),
+                    AutoScrapper.PLUGIN_NAME);
+            }
         }
 
         /// <summary>
@@ -49,14 +56,18 @@ namespace AutoScrapper
                 // Assembly location is the location of executing DLL
                 string assemblyLocation = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
                 string fullName = new DirectoryInfo(assemblyLocation!).FullName;
-                
-                // We don't care how large the original texture is, as LoadImage overrides it anyways.
+
+                // We don't care how large the original texture is, as LoadImage overrides it anyway.
                 // Bigger original texture would only mean more Garbage Collection.
-                Texture2D iconTexture = new Texture2D(0, 0); 
+                Texture2D iconTexture = new Texture2D(0, 0);
                 if (iconTexture.LoadImage(File.ReadAllBytes(Path.Combine(fullName, "icon.png"))))
                 {
-                    Sprite icon = Sprite.Create(iconTexture, new Rect(0.0f, 0.0f, iconTexture.width, iconTexture.height), new Vector2(0.5f, 0.5f));
-                    ModSettingsManager.SetModIcon(icon, AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+                    Sprite icon = Sprite.Create(iconTexture,
+                        new Rect(0.0f, 0.0f, iconTexture.width, iconTexture.height), new Vector2(0.5f, 0.5f));
+                    for (int profileIndex = 0; profileIndex < Utility.PROFILE_COUNT; profileIndex++)
+                    {
+                        ModSettingsManager.SetModIcon(icon, Utility.GetProfileGUID(profileIndex), AutoScrapper.PLUGIN_NAME);
+                    }
                 }
                 else
                     Debug.LogWarning("AutoScrapper: Failed to load icon.png");
@@ -71,18 +82,42 @@ namespace AutoScrapper
         /// Creates a new Int option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddIntOption(ConfigEntry<int> configEntry)
+        public static void AddIntOption(int profileIndex, ConfigEntry<int> configEntry, string profileName, bool requiresRestart = false)
         {
-            ModSettingsManager.AddOption(new IntFieldOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            ModSettingsManager.AddOption(new IntFieldOption(configEntry, requiresRestart), Utility.GetProfileGUID(profileIndex),
+                profileName);
+            // ModSettingsManager.AddOption(new ProfiledOption(), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
         }
-        
+
         /// <summary>
         /// Creates a new Bool option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddBoolOption(ConfigEntry<bool> configEntry)
+        public static void AddBoolOption(int profileIndex, ConfigEntry<bool> configEntry, string profileName, bool requiresRestart = false)
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(configEntry), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
+            ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart), Utility.GetProfileGUID(profileIndex),
+                profileName);
+        }
+
+        /// <summary>
+        /// Creates a new Enum (Dropdown selection) option for the given config entry.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void AddDropdownOption<T>(int profileIndex, ConfigEntry<T> configEntry, string profileName, bool requiresRestart = false)
+            where T : Enum
+        {
+            ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart), Utility.GetProfileGUID(profileIndex),
+                profileName);
+        }
+
+        /// <summary>
+        /// Creates a new String option for the given config entry.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void AddStringOption(int profileIndex, ConfigEntry<string> configEntry, string profileName, bool requiresRestart = false)
+        {
+            ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart), Utility.GetProfileGUID(profileIndex),
+                profileName);
         }
     }
 }
