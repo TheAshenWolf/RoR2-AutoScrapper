@@ -10,6 +10,7 @@
     "AUTO_SCRAPPER_GREEN_ITEMS_PLURAL": "<style=cStack>{0}</style> {1}green items</color>",
     "AUTO_SCRAPPER_RED_ITEMS_PLURAL" : "<style=cStack>{0}</style> {1}red items</color>",
     "AUTO_SCRAPPER_YELLOW_ITEMS_PLURAL" : "<style=cStack>{0}</style> {1}yellow items</color>",
-    "AUTO_SCRAPPER_AND" : "and"
+    "AUTO_SCRAPPER_AND" : "and",
+    "AUTO_SCRAPPER_PROFILE_DESCRIPTION": "This is an override profile for the <color=#FF0000>AutoScrapper</color> mod. <br>It will override the default item settings if selected in the general config.",
     }
 }
