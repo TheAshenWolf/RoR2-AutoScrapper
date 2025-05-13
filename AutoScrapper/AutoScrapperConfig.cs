@@ -83,14 +83,11 @@ namespace AutoScrapper
             ConfigFile mainConfig = _configs[0];
 
             // Generic mod settings
-            _keepScrapperClosedConfig = mainConfig.Bind("General", "KeepScrapperClosed", true,
-                new ConfigDescription(
-                    "If this setting is enabled, the scrapper will not open if it automatically scrapped items. \n"
-                    + "You can always open it with a second interaction."));
-
             _modEnabledConfig = mainConfig.Bind("General", "ModEnabled", true,
-                new ConfigDescription("Who likes restarting the game just to see what mod does what, right? \n"
-                                      + "Just untick this box and the mod won't do anything. \n\n This setting overrides <b>all</b> other settings."));
+                new ConfigDescription(Texts.MOD_ENABLED));
+            
+            _keepScrapperClosedConfig = mainConfig.Bind("General", "KeepScrapperClosed", true,
+                new ConfigDescription(Texts.KEEP_SCRAPPER_CLOSED));
             
             _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
                 new ConfigDescription("If this setting is enabled, all items will be scrapped. \n\n"
