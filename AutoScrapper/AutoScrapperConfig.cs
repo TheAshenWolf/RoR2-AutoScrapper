@@ -91,23 +91,20 @@ namespace AutoScrapper
             _modEnabledConfig = mainConfig.Bind("General", "ModEnabled", true,
                 new ConfigDescription("Who likes restarting the game just to see what mod does what, right? \n"
                                       + "Just untick this box and the mod won't do anything. \n\n This setting overrides <b>all</b> other settings."));
-
-            _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
-                new ConfigDescription("This setting allows you to quickly swap between different profiles. The main configs settings are used if \"None\" is selected."));
-
-            for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
-            {
-                // We create a new config entry for each profile
-                _profileNamesConfig[i] = mainConfig.Bind("General", "ProfileName_" + i, "Profile " + i,
-                    new ConfigDescription("The name of the profile. This is used in the RiskOfOptions menu. \n\n<color=red>Restart is required for this setting to take effect.</color>"));
-            }
             
-            _scrapEverythingConfig = _config.Bind("General", "ScrapEverything", false,
+            _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
                 new ConfigDescription("If this setting is enabled, all items will be scrapped. \n\n"
                                       + "This setting overrides all individual item settings."));
 
-            // _reportEnabledConfig = _config.Bind("General", "ReportEnabled", true,
-            //     new ConfigDescription("When you scrap items, the totals will be written into the chat window. If you don't want that, you can always disable it here."));
+            _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
+                new ConfigDescription("This setting allows you to quickly swap between different profiles. The main configs settings are used if \"None\" is selected."));
+            
+            for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
+            {
+                // We create a new config entry for each profile
+                _profileNamesConfig[i] = mainConfig.Bind("General", "ProfileName_" + (i + 1), "Profile " + (i + 1),
+                    new ConfigDescription("The name of the profile. This is used in the RiskOfOptions menu. \n\n<color=red>Restart is required for this setting to take effect.</color>"));
+            }
 
             if (RiskOfOptionsCompatibility.Enabled)
             {
@@ -115,8 +112,8 @@ namespace AutoScrapper
                 string mainConfigName = GetProfileName(0);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _keepScrapperClosedConfig, mainConfigName);
-                RiskOfOptionsCompatibility.AddDropdownOption(0, _profileOverrideConfig, mainConfigName);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _scrapEverythingConfig, mainConfigName);
+                RiskOfOptionsCompatibility.AddDropdownOption(0, _profileOverrideConfig, mainConfigName);
 
                 for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
                 {
