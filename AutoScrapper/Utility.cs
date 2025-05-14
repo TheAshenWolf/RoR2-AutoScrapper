@@ -132,23 +132,6 @@ namespace AutoScrapper
         }
 
         /// <summary>
-        /// To help with readability, this method creates an identical description for each item.
-        /// <example>
-        /// [name] amount to keep before scrapping. <br/>
-        /// > [item_description] <br/>
-        /// 0 = scrap all, -1 = don't scrap
-        /// </example>
-        /// </summary>
-        /// <param name="item">The item definition to use in description creation</param>
-        public static ConfigDescription GetDescription(ItemDef item)
-        {
-            return new ConfigDescription(
-                $"{GetFormattedName(item)} {COLOR_TEXT}amount to keep before scrapping.</color> \n\n" +
-                $"<i>{Language.GetString(item.descriptionToken)}</i> \n\n" +
-                $"{COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>");
-        }
-
-        /// <summary>
         /// Returns an altered mod guid for RiskOfOptions.
         /// This is used inside the identifier string - no spaces allowed
         /// </summary>
