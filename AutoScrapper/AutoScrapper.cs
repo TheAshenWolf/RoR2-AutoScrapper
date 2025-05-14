@@ -24,7 +24,7 @@ namespace AutoScrapper
         public const string PLUGIN_GUID = PLUGIN_AUTHOR + "." + PLUGIN_NAME;
         public const string PLUGIN_AUTHOR = "TheAshenWolf";
         public const string PLUGIN_NAME = "AutoScrapper";
-        public const string PLUGIN_VERSION = "0.2.1";
+        public const string PLUGIN_VERSION = "0.3.0";
 
         /// Link to the plugin's config file
         public AutoScrapperConfig config;
