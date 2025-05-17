@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using R2API;
 using RoR2;
 
 namespace AutoScrapper
@@ -8,7 +9,7 @@ namespace AutoScrapper
         public const string KEEP_SCRAPPER_CLOSED =
             """
             If this setting is enabled, the scrapper will not open if it automatically scrapped items. 
-            
+
             You can always open it with a second interaction.
             """;
 
@@ -26,7 +27,7 @@ namespace AutoScrapper
 
             This setting overrides all individual item settings.
             """;
-        
+
         public const string PROFILE_OVERRIDE =
             """
             This setting allows you to quickly swap between different profiles.
@@ -39,7 +40,7 @@ namespace AutoScrapper
              
             <color=red>Restart is required for this setting to take effect.</color>
             """;
-        
+
         /// <summary>
         /// To help with readability, this method creates an identical description for each item.
         /// <example>
@@ -49,16 +50,35 @@ namespace AutoScrapper
         /// </example>
         /// </summary>
         /// <param name="item">The item definition to use in description creation</param>
-        public static ConfigDescription GetDescription(ItemDef item)
+        public static ConfigDescription GetConfigDescription(ItemDef item, bool customTranslationSupported)
         {
-            return new ConfigDescription(
-                $"""
-                 {Utility.GetFormattedName(item)} {Utility.COLOR_TEXT}amount to keep before scrapping.</color>
+            if (customTranslationSupported)
+                return new ConfigDescription(
+                    $"Amount of {item.name} to keep before scrapping. \n0 = scrap all, -1 = don't scrap");
+            return new ConfigDescription($"""
+                                          {Utility.GetFormattedName(item)} {Utility.COLOR_TEXT}amount to keep before scrapping.</color>
 
-                 <i>{Language.GetString(item.descriptionToken)}</i>
+                                          <i>{Language.GetString(item.descriptionToken)}</i>
 
-                 {Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>
-                 """);
+                                          {Utility.COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>
+                                          """);
+        }
+
+        public static string CreateDescriptionToken(ItemDef item)
+        {
+            string itemDescription = Language.GetString(item.descriptionToken);
+            string itemName = Utility.GetFormattedName(item);
+
+            string description = Language.GetString("AUTO_SCRAPPER_AMOUNT_OF") + " " + itemName + " " +
+                                 Language.GetString("AUTO_SCRAPPER_TO_KEEP");
+            description += "/n/n<i>" + itemDescription + "</i>";
+            description += "/n/n" + Utility.COLOR_TEXT + Language.GetString("AUTO_SCRAPPER_NUMBER_EXPLANATION") +
+                           "</color>";
+
+            string newToken = item.nameToken + "_AUTO_SCRAPPER_DESCRIPTION";
+            LanguageAPI.Add(newToken, description, Language.currentLanguageName);
+
+            return newToken;
         }
     }
 }

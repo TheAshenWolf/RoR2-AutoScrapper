@@ -26,7 +26,7 @@ namespace AutoScrapper
         private ConfigEntry<bool> _modEnabledConfig;
         // Scraps everything. Priority 1.
         private ConfigEntry<bool> _scrapEverythingConfig;
-        
+
         private ConfigEntry<ProfileOverride> _profileOverrideConfig;
         private ConfigEntry<string>[] _profileNamesConfig;
 
@@ -46,9 +46,9 @@ namespace AutoScrapper
 
             _configs = new ConfigFile[Utility.PROFILE_COUNT];
             _profileNamesConfig = new ConfigEntry<string>[Utility.ALT_PROFILE_COUNT];
-            
+
             SetupConfig();
-            
+
             // We moved these settings here, as getting the category name in them is painful.
             // The category name is determined by the first config to ever set it.
             if (RiskOfOptionsCompatibility.Enabled)
@@ -85,16 +85,16 @@ namespace AutoScrapper
             // Generic mod settings
             _modEnabledConfig = mainConfig.Bind("General", "ModEnabled", true,
                 new ConfigDescription(Texts.MOD_ENABLED));
-            
+
             _keepScrapperClosedConfig = mainConfig.Bind("General", "KeepScrapperClosed", true,
                 new ConfigDescription(Texts.KEEP_SCRAPPER_CLOSED));
-            
+
             _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
                 new ConfigDescription(Texts.SCRAP_EVERYTHING));
 
             _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
                 new ConfigDescription(Texts.PROFILE_OVERRIDE));
-            
+
             for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
             {
                 // We create a new config entry for each profile
@@ -221,11 +221,11 @@ namespace AutoScrapper
                 for (int profileIndex = 0; profileIndex < Utility.PROFILE_COUNT; profileIndex++)
                 {
                     ConfigEntry<int> config = _configs[profileIndex]
-                        .Bind(section, item.name, defaultValue, Texts.GetDescription(item));
+                        .Bind(section, item.name, defaultValue, Texts.GetConfigDescription(item, RiskOfOptionsCompatibility.SupportsCustomTranslation));
                     itemConfigs[profileIndex][item.itemIndex] = config;
 
                     if (RiskOfOptionsCompatibility.Enabled)
-                        RiskOfOptionsCompatibility.AddIntOption(profileIndex, config, GetProfileName(profileIndex));
+                        RiskOfOptionsCompatibility.AddIntOption(profileIndex, config, GetProfileName(profileIndex), item.nameToken, Texts.CreateDescriptionToken(item));
                 }
             }
         }
@@ -253,7 +253,7 @@ namespace AutoScrapper
         /// Gets the config entry for whether all items should be scrapped.
         /// </summary>
         public bool ScrapEverything => _scrapEverythingConfig.Value;
-        
+
         /// <summary>
         /// The first index - 0, is always the main config.
         /// The other names can be retrieved from the main config. This array, however, is

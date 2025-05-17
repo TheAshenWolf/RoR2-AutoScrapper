@@ -12,5 +12,18 @@
     "AUTO_SCRAPPER_YELLOW_ITEMS_PLURAL" : "<style=cStack>{0}</style> {1}yellow items</color>",
     "AUTO_SCRAPPER_AND" : "and",
     "AUTO_SCRAPPER_PROFILE_DESCRIPTION": "This is an override profile for the <color=#FF0000>AutoScrapper</color> mod. <br>It will override the default item settings if selected in the general config.",
+    "AUTO_SCRAPPER_AMOUNT_OF": "Amount of ",
+    "AUTO_SCRAPPER_TO_KEEP" : "",
+    "AUTO_SCRAPPER_NUMBER_EXPLANATION": "",
+    "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED": "",
+    "AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_DESC": "",
+    "AUTO_SCRAPPER_MOD_ENABLED" : "",
+    "AUTO_SCRAPPER_MOD_ENABLED_DESC": "",
+    "AUTO_SCRAPPER_SCRAP_EVERYTHING": "",
+    "AUTO_SCRAPPER_SCRAP_EVERYTHING_DESC": "",
+    "AUTO_SCRAPPER_PROFILE_OVERRIDE": "",
+    "AUTO_SCRAPPER_PROFILE_OVERRIDE_DESC": "",
+    "AUTO_SCRAPPER_PROFILE_RENAME": "",
+    "AUTO_SCRAPPER_PROFILE_RENAME_DESC": "",
     }
 }

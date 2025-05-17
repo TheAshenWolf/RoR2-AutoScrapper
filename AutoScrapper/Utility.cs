@@ -171,5 +171,20 @@ namespace AutoScrapper
                 File.Delete(OLD_CONFIG_PATH);
             }
         }
+
+        /// <summary>
+        /// Removes all tags from the given string to remove formatting used in-game.<br/>
+        /// </summary>
+        public static string Sanitize(this string text)
+        {
+            // Remove everything within <> tags, including the tags themselves, for every occurrence
+            // and replace it with an empty string.
+            text = System.Text.RegularExpressions.Regex.Replace(text, "<.*?>", string.Empty);
+
+            // Remove new lines
+            text = text.Replace("\n", string.Empty);
+
+            return text;
+        }
     }
 }
