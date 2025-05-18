@@ -82,24 +82,24 @@ namespace AutoScrapper
 
             ConfigFile mainConfig = _configs[0];
 
-            // Generic mod settings
+            // Generic mod settings - We get descriptions by using the english translation of the text
             _modEnabledConfig = mainConfig.Bind("General", "ModEnabled", true,
-                new ConfigDescription(Texts.MOD_ENABLED));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_MOD_ENABLED_DESC")));
 
             _keepScrapperClosedConfig = mainConfig.Bind("General", "KeepScrapperClosed", true,
-                new ConfigDescription(Texts.KEEP_SCRAPPER_CLOSED));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_DESC")));
 
             _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
-                new ConfigDescription(Texts.SCRAP_EVERYTHING));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_SCRAP_EVERYTHING_DESC")));
 
             _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
-                new ConfigDescription(Texts.PROFILE_OVERRIDE));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_PROFILE_OVERRIDE_DESC")));
 
             for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
             {
                 // We create a new config entry for each profile
                 _profileNamesConfig[i] = mainConfig.Bind("General", "ProfileName_" + (i + 1), "Profile " + (i + 1),
-                    new ConfigDescription(Texts.PROFILE_RENAME));
+                    new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_PROFILE_RENAME_DESC")));
             }
 
             if (RiskOfOptionsCompatibility.Enabled)
