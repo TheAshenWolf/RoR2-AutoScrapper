@@ -44,19 +44,23 @@ namespace AutoScrapper
         public List<string> GetReportParts()
         {
             List<string> parts = new List<string>(4);
-            
+
             // Strings here are in format "Scrapped {0} {1}[color] items</color>"
             // We use {1} to insert the color of the item based on our settings
-            
+
             if (white > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_WHITE_ITEMS" + (white > 1 ? "_PLURAL" : "")), white, Utility.COLOR_WHITE));
+                parts.Add(Language.GetStringFormatted(white > 1 ? Tokens.WHITE_ITEMS_PLURAL : Tokens.WHITE_ITEMS, white,
+                    Utility.COLOR_WHITE));
             if (green > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_GREEN_ITEMS" + (green > 1 ? "_PLURAL" : "")), green, Utility.COLOR_GREEN));
+                parts.Add(Language.GetStringFormatted(green > 1 ? Tokens.GREEN_ITEMS_PLURAL : Tokens.GREEN_ITEMS, green,
+                    Utility.COLOR_GREEN));
             if (red > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_RED_ITEMS" + (red > 1 ? "_PLURAL" : "") ), red, Utility.COLOR_RED));
+                parts.Add(Language.GetStringFormatted(red > 1 ? Tokens.RED_ITEMS_PLURAL : Tokens.RED_ITEMS, red,
+                    Utility.COLOR_RED));
             if (yellow > 0)
-                parts.Add(string.Format(Language.GetString("AUTO_SCRAPPER_YELLOW_ITEMS" + (yellow > 1 ? "_PLURAL" : "")), yellow, Utility.COLOR_YELLOW));
-            
+                parts.Add(Language.GetStringFormatted(yellow > 1 ? Tokens.YELLOW_ITEMS_PLURAL : Tokens.YELLOW_ITEMS,
+                    yellow, Utility.COLOR_YELLOW));
+
             return parts;
         }
     }

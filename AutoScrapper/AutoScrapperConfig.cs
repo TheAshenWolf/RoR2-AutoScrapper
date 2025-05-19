@@ -11,9 +11,6 @@ namespace AutoScrapper
     /// </summary>
     public class AutoScrapperConfig
     {
-        public Dictionary<NetworkInstanceId, Dictionary<string, bool>> clientGeneralConfigs;
-        public Dictionary<NetworkInstanceId, Dictionary<string, int>> clientItemConfigs;
-
         private ConfigFile[] _configs;
 
         /// We use a dictionary so we can easily look up the item's config by its index
@@ -22,8 +19,10 @@ namespace AutoScrapper
         // General configuration
         // Keeps the scrapper closed after auto-scrapping
         private ConfigEntry<bool> _keepScrapperClosedConfig;
+
         // Disables the whole functionality of the mod. Priority 0.
         private ConfigEntry<bool> _modEnabledConfig;
+
         // Scraps everything. Priority 1.
         private ConfigEntry<bool> _scrapEverythingConfig;
 
@@ -41,9 +40,6 @@ namespace AutoScrapper
         /// </summary>
         public AutoScrapperConfig()
         {
-            clientGeneralConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, bool>>();
-            clientItemConfigs = new Dictionary<NetworkInstanceId, Dictionary<string, int>>();
-
             _configs = new ConfigFile[Utility.PROFILE_COUNT];
             _profileNamesConfig = new ConfigEntry<string>[Utility.ALT_PROFILE_COUNT];
 
@@ -53,7 +49,7 @@ namespace AutoScrapper
             // The category name is determined by the first config to ever set it.
             if (RiskOfOptionsCompatibility.Enabled)
             {
-                RiskOfOptionsCompatibility.SetModDescriptionToken("AUTO_SCRAPPER_MOD_DESCRIPTION");
+                RiskOfOptionsCompatibility.SetModDescriptionToken(Tokens.MOD_DESCRIPTION);
                 RiskOfOptionsCompatibility.SetModIcon();
             }
         }
@@ -84,36 +80,48 @@ namespace AutoScrapper
 
             // Generic mod settings - We get descriptions by using the english translation of the text
             _modEnabledConfig = mainConfig.Bind("General", "ModEnabled", true,
-                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_MOD_ENABLED_DESC")));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken(Tokens.MOD_ENABLED_DESC)
+                    .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
 
             _keepScrapperClosedConfig = mainConfig.Bind("General", "KeepScrapperClosed", true,
-                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_KEEP_SCRAPPER_CLOSED_DESC")));
+                new ConfigDescription(Language.english
+                    .GetLocalizedStringByToken(Tokens.KEEP_SCRAPPER_CLOSED_DESC)
+                    .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
 
             _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
-                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_SCRAP_EVERYTHING_DESC")));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken(Tokens.SCRAP_EVERYTHING_DESC)
+                    .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
 
             _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
-                new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_PROFILE_OVERRIDE_DESC")));
+                new ConfigDescription(Language.english.GetLocalizedStringByToken(Tokens.PROFILE_OVERRIDE_DESC)
+                    .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
 
             for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
             {
                 // We create a new config entry for each profile
                 _profileNamesConfig[i] = mainConfig.Bind("General", "ProfileName_" + (i + 1), "Profile " + (i + 1),
-                    new ConfigDescription(Language.english.GetLocalizedStringByToken("AUTO_SCRAPPER_PROFILE_RENAME_DESC")));
+                    new ConfigDescription(Language.english
+                        .GetLocalizedStringByToken(Tokens.PROFILE_RENAME_DESC)
+                        .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
             }
 
             if (RiskOfOptionsCompatibility.Enabled)
             {
                 // Bool settings are only present in the main config.
                 string mainConfigName = GetProfileName(0);
-                RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName);
-                RiskOfOptionsCompatibility.AddBoolOption(0, _keepScrapperClosedConfig, mainConfigName);
-                RiskOfOptionsCompatibility.AddBoolOption(0, _scrapEverythingConfig, mainConfigName);
-                RiskOfOptionsCompatibility.AddDropdownOption(0, _profileOverrideConfig, mainConfigName);
+                RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName,
+                    Tokens.MOD_ENABLED, Tokens.MOD_ENABLED_DESC);
+                RiskOfOptionsCompatibility.AddBoolOption(0, _keepScrapperClosedConfig, mainConfigName,
+                    Tokens.KEEP_SCRAPPER_CLOSED, Tokens.KEEP_SCRAPPER_CLOSED_DESC);
+                RiskOfOptionsCompatibility.AddBoolOption(0, _scrapEverythingConfig, mainConfigName,
+                    Tokens.SCRAP_EVERYTHING, Tokens.SCRAP_EVERYTHING_DESC);
+                RiskOfOptionsCompatibility.AddDropdownOption(0, _profileOverrideConfig, mainConfigName,
+                    Tokens.PROFILE_OVERRIDE, Tokens.PROFILE_OVERRIDE_DESC);
 
                 for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
                 {
-                    RiskOfOptionsCompatibility.AddStringOption(0, _profileNamesConfig[i], mainConfigName, true);
+                    RiskOfOptionsCompatibility.AddStringOption(0, _profileNamesConfig[i], mainConfigName,
+                        Tokens.PROFILE_RENAME, Tokens.PROFILE_RENAME_DESC, true);
                 }
             }
 
@@ -221,11 +229,13 @@ namespace AutoScrapper
                 for (int profileIndex = 0; profileIndex < Utility.PROFILE_COUNT; profileIndex++)
                 {
                     ConfigEntry<int> config = _configs[profileIndex]
-                        .Bind(section, item.name, defaultValue, Texts.GetConfigDescription(item, RiskOfOptionsCompatibility.SupportsCustomTranslation));
+                        .Bind(section, item.name, defaultValue,
+                            Utility.GetConfigDescription(item, RiskOfOptionsCompatibility.SupportsCustomTranslation));
                     itemConfigs[profileIndex][item.itemIndex] = config;
 
                     if (RiskOfOptionsCompatibility.Enabled)
-                        RiskOfOptionsCompatibility.AddIntOption(profileIndex, config, GetProfileName(profileIndex), item.nameToken, Texts.CreateDescriptionToken(item));
+                        RiskOfOptionsCompatibility.AddIntOption(profileIndex, config, GetProfileName(profileIndex),
+                            item.nameToken, Utility.CreateDescriptionToken(item));
                 }
             }
         }

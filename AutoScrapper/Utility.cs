@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
+using R2API;
 using RoR2;
 using Path = System.IO.Path;
 
@@ -99,12 +100,12 @@ namespace AutoScrapper
                 return;
 
             string result = COLOR_PLAYER + userName + "</color> " + COLOR_TEXT +
-                            Language.GetString("AUTO_SCRAPPER_AUTOMAGICALLY_SCRAPPED") + " ";
+                            Language.GetString(Tokens.AUTOMAGICALLY_SCRAPPED) + " ";
 
             if (partsCount == 1)
                 result += parts[0] + ".";
             else if (partsCount == 2)
-                result += parts[0] + " " + Language.GetString("AUTO_SCRAPPER_AND") + " " + parts[1] + ".";
+                result += parts[0] + " " + Language.GetString(Tokens.AND) + " " + parts[1] + ".";
             else if (partsCount > 2)
             {
                 for (int i = 0; i < partsCount; i++)
@@ -112,7 +113,7 @@ namespace AutoScrapper
                     if (i > 0)
                     {
                         if (i == partsCount - 1)
-                            result += ", " + Language.GetString("AUTO_SCRAPPER_AND") + " ";
+                            result += ", " + Language.GetString(Tokens.AND) + " ";
                         else
                             result += ", ";
                     }
@@ -185,6 +186,55 @@ namespace AutoScrapper
             text = text.Replace("\n", string.Empty);
 
             return text;
+        }
+        
+        public static string SanitizeIfLocalized(this string text, bool localizationSupported)
+        {
+            return localizationSupported ? text.Sanitize() : text;
+        }
+
+    /// <summary>
+        /// To help with readability, this method creates an identical description for each item.
+        /// <example>
+        /// [name] amount to keep before scrapping. <br/>
+        /// > [item_description] <br/>
+        /// 0 = scrap all, -1 = don't scrap
+        /// </example>
+        /// </summary>
+        /// <param name="item">The item definition to use in description creation</param>
+        public static ConfigDescription GetConfigDescription(ItemDef item, bool customTranslationSupported)
+        {
+            if (customTranslationSupported)
+                return new ConfigDescription(
+                    $"Amount of {item.name} to keep before scrapping. \n0 = scrap all, -1 = don't scrap");
+            return new ConfigDescription(
+                $"""
+                 {COLOR_TEXT}{Language.GetStringFormatted(Tokens.AMOUNT_OF_X_TO_KEEP, GetFormattedName(item))}</color>
+
+                 <i>{Language.GetString(item.descriptionToken)}</i>
+
+                 {COLOR_TEXT}0 = scrap all, -1 = don't scrap</color>
+                 """);
+        }
+
+        /// <summary>
+        /// Creates a description token and registers it with the localization system.
+        /// </summary>
+        /// <param name="item">Item to create a token for</param>
+        public static string CreateDescriptionToken(ItemDef item)
+        {
+            string itemDescription = Language.GetString(item.descriptionToken);
+            string itemName = GetFormattedName(item);
+
+            string description = Language.GetStringFormatted(Tokens.AMOUNT_OF_X_TO_KEEP, itemName);
+            description += "/n/n<i>" + itemDescription + "</i>";
+            description += "/n/n" + COLOR_TEXT + Language.GetString(Tokens.NUMBER_EXPLANATION) +
+                           "</color>";
+
+            string newToken = item.nameToken + "_AUTO_SCRAPPER_DESCRIPTION";
+            LanguageAPI.Add(newToken, description, Language.currentLanguageName);
+
+            return newToken;
         }
     }
 }

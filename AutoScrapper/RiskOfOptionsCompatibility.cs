@@ -40,7 +40,7 @@ namespace AutoScrapper
                 {
                     Version version = BepInEx.Bootstrap.Chainloader.PluginInfos["com.rune580.riskofoptions"].Metadata
                         .Version;
-                    _supportsCustomTranslation = version >= Version.Parse("2.8.3");
+                    _supportsCustomTranslation = version == Version.Parse("2.8.3");
                 }
 
                 return _supportsCustomTranslation.Value;
@@ -59,7 +59,7 @@ namespace AutoScrapper
 
             for (int i = 1; i < Utility.PROFILE_COUNT; i++)
             {
-                ModSettingsManager.SetModDescriptionToken("AUTO_SCRAPPER_PROFILE_DESCRIPTION",
+                ModSettingsManager.SetModDescriptionToken(Tokens.PROFILE_DESCRIPTION,
                     Utility.GetProfileGUID(i),
                     AutoScrapper.PLUGIN_NAME);
             }
@@ -117,29 +117,25 @@ namespace AutoScrapper
             }
         }
 
-//        /// <summary>
-//        /// Creates a new Int option for the given config entry.
-//        /// </summary>
-//        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-//        public static void AddIntOption(int profileIndex, ConfigEntry<int> configEntry, string profileName,
-//            bool requiresRestart = false)
-//        {
-//            ModSettingsManager.AddOption(new IntFieldOption(configEntry, requiresRestart),
-//                Utility.GetProfileGUID(profileIndex),
-//                profileName);
-//            // ModSettingsManager.AddOption(new ProfiledOption(), AutoScrapper.PLUGIN_GUID, AutoScrapper.PLUGIN_NAME);
-//        }
-
         /// <summary>
         /// Creates a new Bool option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void AddBoolOption(int profileIndex, ConfigEntry<bool> configEntry, string profileName,
-            bool requiresRestart = false)
+            string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
-            ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart),
-                Utility.GetProfileGUID(profileIndex),
-                profileName);
+            if (SupportsCustomTranslation)
+            {
+                ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName, customNameToken, customDescriptionToken);
+            }
+            else
+            {
+                ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName);
+            }
         }
 
         /// <summary>
@@ -147,12 +143,21 @@ namespace AutoScrapper
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void AddDropdownOption<T>(int profileIndex, ConfigEntry<T> configEntry, string profileName,
-            bool requiresRestart = false)
+            string customNameToken, string customDescriptionToken, bool requiresRestart = false)
             where T : Enum
         {
-            ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart),
-                Utility.GetProfileGUID(profileIndex),
-                profileName);
+            if (SupportsCustomTranslation)
+            {
+                ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName, customNameToken, customDescriptionToken);
+            }
+            else
+            {
+                ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName);
+            }
         }
 
         /// <summary>
@@ -160,11 +165,20 @@ namespace AutoScrapper
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static void AddStringOption(int profileIndex, ConfigEntry<string> configEntry, string profileName,
-            bool requiresRestart = false)
+            string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
-            ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart),
-                Utility.GetProfileGUID(profileIndex),
-                profileName);
+            if (SupportsCustomTranslation)
+            {
+                ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName, customNameToken, customDescriptionToken);
+            }
+            else
+            {
+                ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart),
+                    Utility.GetProfileGUID(profileIndex),
+                    profileName);
+            }
         }
     }
 }
