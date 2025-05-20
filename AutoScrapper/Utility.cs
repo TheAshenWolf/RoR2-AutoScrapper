@@ -227,8 +227,8 @@ namespace AutoScrapper
             string itemName = GetFormattedName(item);
 
             string description = Language.GetStringFormatted(Tokens.AMOUNT_OF_X_TO_KEEP, itemName);
-            description += "/n/n<i>" + itemDescription + "</i>";
-            description += "/n/n" + COLOR_TEXT + Language.GetString(Tokens.NUMBER_EXPLANATION) +
+            description += "\n\n<i>" + itemDescription + "</i>";
+            description += "\n\n" + COLOR_TEXT + Language.GetString(Tokens.NUMBER_EXPLANATION) +
                            "</color>";
 
             string newToken = item.nameToken + "_AUTO_SCRAPPER_DESCRIPTION";
