@@ -26,5 +26,9 @@ namespace AutoScrapper
         public const string PROFILE_OVERRIDE_DESC = "AUTO_SCRAPPER_PROFILE_OVERRIDE_DESC";
         public const string PROFILE_RENAME = "AUTO_SCRAPPER_PROFILE_RENAME";
         public const string PROFILE_RENAME_DESC = "AUTO_SCRAPPER_PROFILE_RENAME_DESC";
+        public const string CATEGORY_WHITE_ITEMS = "AUTO_SCRAPPER_CATEGORY_WHITE_ITEMS";
+        public const string CATEGORY_GREEN_ITEMS = "AUTO_SCRAPPER_CATEGORY_GREEN_ITEMS";
+        public const string CATEGORY_RED_ITEMS = "AUTO_SCRAPPER_CATEGORY_RED_ITEMS";
+        public const string CATEGORY_YELLOW_ITEMS = "AUTO_SCRAPPER_CATEGORY_YELLOW_ITEMS";
     }
 }

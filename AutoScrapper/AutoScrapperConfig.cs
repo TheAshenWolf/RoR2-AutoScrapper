@@ -134,10 +134,10 @@ namespace AutoScrapper
             }
 
             // Dictionary is a reference type; passing it as a parameter allows us to add into it
-            CreateItemGroupConfigs("White Items", _whiteItems, configEntries);
-            CreateItemGroupConfigs("Green Items", _greenItems, configEntries);
-            CreateItemGroupConfigs("Red Items", _redItems, configEntries);
-            CreateItemGroupConfigs("Yellow Items", _yellowItems, configEntries);
+            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_WHITE_ITEMS), _whiteItems, configEntries);
+            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_GREEN_ITEMS), _greenItems, configEntries);
+            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_RED_ITEMS), _redItems, configEntries);
+            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_YELLOW_ITEMS), _yellowItems, configEntries);
         }
 
         /// <summary>
