@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BepInEx.Configuration;
+using RiskOfOptions.Options;
 using RoR2;
 using RoR2.ContentManagement;
 using UnityEngine.Networking;
@@ -109,7 +110,7 @@ namespace AutoScrapper
             {
                 // Bool settings are only present in the main config.
                 string mainConfigName = GetProfileName(0);
-                RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName,
+                BaseOption modEnabledOption = RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName,
                     Tokens.MOD_ENABLED, Tokens.MOD_ENABLED_DESC);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _keepScrapperClosedConfig, mainConfigName,
                     Tokens.KEEP_SCRAPPER_CLOSED, Tokens.KEEP_SCRAPPER_CLOSED_DESC);
@@ -123,6 +124,9 @@ namespace AutoScrapper
                     RiskOfOptionsCompatibility.AddStringOption(0, _profileNamesConfig[i], mainConfigName,
                         Tokens.PROFILE_RENAME, Tokens.PROFILE_RENAME_DESC, true);
                 }
+                
+                // We set the category tokens
+                RiskOfOptionsCompatibility.SetCategoryName(modEnabledOption, Tokens.CATEGORY_GENERAL);
             }
 
             // We count the total amount of items and create a dictionary for the config entries

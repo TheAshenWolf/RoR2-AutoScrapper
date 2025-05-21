@@ -47,6 +47,12 @@ namespace AutoScrapper
             }
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        public static void SetCategoryName(BaseOption option, string nameToken)
+        {
+            ModSettingsManager.SetCategoryNameToken(AutoScrapper.PLUGIN_GUID, option, nameToken);
+        }
+
         /// <summary>
         /// Sets the mod description token for the mod.
         /// Token is used by the localization system to get the correct description for the mod.
