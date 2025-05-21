@@ -100,85 +100,93 @@ namespace AutoScrapper
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddIntOption(int profileIndex, ConfigEntry<int> configEntry, string profileName,
+        public static BaseOption AddIntOption(int profileIndex, ConfigEntry<int> configEntry, string profileName,
             string customNameToken, string customDescriptionToken, bool restartRequired = false)
         {
+            BaseOption option = new IntFieldOption(configEntry, restartRequired);
+            
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(new IntFieldOption(configEntry, restartRequired),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName, customNameToken, customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(new IntFieldOption(configEntry, restartRequired),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName);
             }
+
+            return option;
         }
 
         /// <summary>
         /// Creates a new Bool option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddBoolOption(int profileIndex, ConfigEntry<bool> configEntry, string profileName,
+        public static BaseOption AddBoolOption(int profileIndex, ConfigEntry<bool> configEntry, string profileName,
             string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
+            BaseOption option = new CheckBoxOption(configEntry, requiresRestart);
+            
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName, customNameToken, customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(new CheckBoxOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName);
             }
+            
+            return option;
         }
 
         /// <summary>
         /// Creates a new Enum (Dropdown selection) option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddDropdownOption<T>(int profileIndex, ConfigEntry<T> configEntry, string profileName,
+        public static BaseOption AddDropdownOption<T>(int profileIndex, ConfigEntry<T> configEntry, string profileName,
             string customNameToken, string customDescriptionToken, bool requiresRestart = false)
             where T : Enum
         {
+            BaseOption option = new ChoiceOption(configEntry, requiresRestart);
+            
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName, customNameToken, customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(new ChoiceOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName);
             }
+            
+            return option;
         }
 
         /// <summary>
         /// Creates a new String option for the given config entry.
         /// </summary>
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void AddStringOption(int profileIndex, ConfigEntry<string> configEntry, string profileName,
+        public static BaseOption AddStringOption(int profileIndex, ConfigEntry<string> configEntry, string profileName,
             string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
+            BaseOption option = new StringInputFieldOption(configEntry, requiresRestart);
+            
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName, customNameToken, customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(new StringInputFieldOption(configEntry, requiresRestart),
-                    Utility.GetProfileGUID(profileIndex),
+                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
                     profileName);
             }
+            
+            return option;
         }
     }
 }
