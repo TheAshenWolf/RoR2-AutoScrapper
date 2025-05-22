@@ -48,7 +48,7 @@ namespace AutoScrapper
         }
 
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        public static void SetCategoryName(BaseOption option, string nameToken)
+        public static void SetCategoryNameToken(this BaseOption option, string nameToken)
         {
             ModSettingsManager.SetCategoryNameToken(AutoScrapper.PLUGIN_GUID, option, nameToken);
         }

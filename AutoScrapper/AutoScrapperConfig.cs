@@ -1,9 +1,9 @@
+using System;
 using System.Collections.Generic;
 using BepInEx.Configuration;
-using RiskOfOptions.Options;
+using R2API;
 using RoR2;
 using RoR2.ContentManagement;
-using UnityEngine.Networking;
 
 namespace AutoScrapper
 {
@@ -102,7 +102,7 @@ namespace AutoScrapper
                 // We create a new config entry for each profile
                 _profileNamesConfig[i] = mainConfig.Bind("General", "ProfileName_" + (i + 1), "Profile " + (i + 1),
                     new ConfigDescription(Language.english
-                        .GetLocalizedStringByToken(Tokens.PROFILE_RENAME_DESC)
+                        .GetLocalizedStringByToken(Tokens.PROFILE_RENAME_DESCS[i])
                         .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
             }
 
@@ -110,8 +110,8 @@ namespace AutoScrapper
             {
                 // Bool settings are only present in the main config.
                 string mainConfigName = GetProfileName(0);
-                BaseOption modEnabledOption = RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName,
-                    Tokens.MOD_ENABLED, Tokens.MOD_ENABLED_DESC);
+                RiskOfOptionsCompatibility.AddBoolOption(0, _modEnabledConfig, mainConfigName,
+                    Tokens.MOD_ENABLED, Tokens.MOD_ENABLED_DESC).SetCategoryNameToken(Tokens.CATEGORY_GENERAL);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _keepScrapperClosedConfig, mainConfigName,
                     Tokens.KEEP_SCRAPPER_CLOSED, Tokens.KEEP_SCRAPPER_CLOSED_DESC);
                 RiskOfOptionsCompatibility.AddBoolOption(0, _scrapEverythingConfig, mainConfigName,
@@ -119,14 +119,18 @@ namespace AutoScrapper
                 RiskOfOptionsCompatibility.AddDropdownOption(0, _profileOverrideConfig, mainConfigName,
                     Tokens.PROFILE_OVERRIDE, Tokens.PROFILE_OVERRIDE_DESC);
 
+                string[] names = Enum.GetNames(typeof(ProfileOverride));
                 for (int i = 0; i < Utility.ALT_PROFILE_COUNT; i++)
                 {
                     RiskOfOptionsCompatibility.AddStringOption(0, _profileNamesConfig[i], mainConfigName,
-                        Tokens.PROFILE_RENAME, Tokens.PROFILE_RENAME_DESC, true);
+                        Tokens.PROFILE_RENAMES[i], Tokens.PROFILE_RENAME_DESCS[i], true);
+
+                    // TODO: Hardcoded "General" is not optimal.
+                    string optionToken =
+                        $"RISK_OF_OPTIONS.{AutoScrapper.PLUGIN_GUID}.General.{nameof(ProfileOverride)}.CHOICE.ITEM.{names[i + 1]}"
+                            .Replace(" ", "_").ToUpper();
+                    LanguageAPI.Add(optionToken, GetShortProfileName(i + 1));
                 }
-                
-                // We set the category tokens
-                RiskOfOptionsCompatibility.SetCategoryName(modEnabledOption, Tokens.CATEGORY_GENERAL);
             }
 
             // We count the total amount of items and create a dictionary for the config entries
@@ -138,10 +142,10 @@ namespace AutoScrapper
             }
 
             // Dictionary is a reference type; passing it as a parameter allows us to add into it
-            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_WHITE_ITEMS), _whiteItems, configEntries);
-            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_GREEN_ITEMS), _greenItems, configEntries);
-            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_RED_ITEMS), _redItems, configEntries);
-            CreateItemGroupConfigs(Language.english.GetLocalizedStringByToken(Tokens.CATEGORY_YELLOW_ITEMS), _yellowItems, configEntries);
+            CreateItemGroupConfigs(Tokens.CATEGORY_WHITE_ITEMS, _whiteItems, configEntries);
+            CreateItemGroupConfigs(Tokens.CATEGORY_GREEN_ITEMS, _greenItems, configEntries);
+            CreateItemGroupConfigs(Tokens.CATEGORY_RED_ITEMS, _redItems, configEntries);
+            CreateItemGroupConfigs(Tokens.CATEGORY_YELLOW_ITEMS, _yellowItems, configEntries);
         }
 
         /// <summary>
@@ -191,12 +195,14 @@ namespace AutoScrapper
         /// <summary>
         /// To avoid code repetition, this method creates a config entry for each item in the given section.
         /// </summary>
-        /// <param name="section">Name of the section - same for each entry</param>
+        /// <param name="nameToken">Token determining the name of the section</param>
         /// <param name="items">An array of item ids. This method looks up required information itself</param>
         /// <param name="itemConfig">Link to an existing dictionary with the config. We save config data here</param>
-        private void CreateItemGroupConfigs(string section, ItemDef[] items,
+        private void CreateItemGroupConfigs(string nameToken, ItemDef[] items,
             Dictionary<ItemIndex, ConfigEntry<int>>[] itemConfigs)
         {
+            string section = Language.english.GetLocalizedStringByToken(nameToken).Sanitize();
+            
             // First we gather all items for given section
             int itemCount = items.Length;
 
@@ -239,7 +245,7 @@ namespace AutoScrapper
 
                     if (RiskOfOptionsCompatibility.Enabled)
                         RiskOfOptionsCompatibility.AddIntOption(profileIndex, config, GetProfileName(profileIndex),
-                            item.nameToken, Utility.CreateDescriptionToken(item));
+                            item.nameToken, Utility.CreateDescriptionToken(item)).SetCategoryNameToken(nameToken);
                 }
             }
         }
@@ -276,7 +282,17 @@ namespace AutoScrapper
         public string GetProfileName(int profileIndex)
         {
             if (profileIndex == 0) return AutoScrapper.PLUGIN_NAME;
-            return AutoScrapper.PLUGIN_NAME + " | " + _profileNamesConfig[profileIndex - 1].Value;
+            return AutoScrapper.PLUGIN_NAME + " | " + GetShortProfileName(profileIndex);
+        }
+
+        /// <summary>
+        /// Returns the name of the profile
+        /// </summary>
+        /// <param name="profileIndex">Index of the profile</param>
+        public string GetShortProfileName(int profileIndex)
+        {
+            if (profileIndex == 0) return AutoScrapper.PLUGIN_NAME;
+            return _profileNamesConfig[profileIndex - 1].Value;
         }
     }
 }
