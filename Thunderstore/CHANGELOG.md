@@ -1,3 +1,11 @@
+### AutoScrapper 0.3.0
+- Added the option to scrap all items without changing the individual item limits
+- Added profiles - now you can save up to four different configurations (you can name these) and switch between them on the fly
+- Added custom translation for field names (requires Risk of Options 2.8.3)
+- Fixed folder structure inside the mod folder
+- Configs now have their own folder (old configs will be moved automatically)
+- There are other changes waiting for when Risk of Options 2.8.5 is released, so stay tuned!
+
 ### AutoScrapper 0.2.1
 - Fixed double initialization error when returning to the main menu
 
