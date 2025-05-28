@@ -189,10 +189,12 @@ namespace AutoScrapper
         /// </summary>
         /// <param name="section">Name of the section - same for each entry</param>
         /// <param name="items">An array of item ids. This method looks up required information itself</param>
-        /// <param name="itemConfig">Link to an existing dictionary with the config. We save config data here</param>
+        /// <param name="itemConfigs">Link to an existing dictionary with the configs. We save config data here</param>
         private void CreateItemGroupConfigs(string section, ItemDef[] items,
             Dictionary<ItemIndex, ConfigEntry<int>>[] itemConfigs)
         {
+            section = section.Sanitize();
+            
             // First we gather all items for given section
             int itemCount = items.Length;
 

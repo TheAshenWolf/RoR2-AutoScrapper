@@ -99,21 +99,50 @@ namespace AutoScrapper
             }
         }
 
+        /// <summary>
+        /// Adds an option with custom translation support.
+        /// </summary>
+        /// <param name="option">Option to add</param>
+        /// <param name="profileIndex">Index of the profile to add for</param>
+        /// <param name="profileName">Name of the profile to add for</param>
+        /// <param name="customNameToken">Custom name translation token</param>
+        /// <param name="customDescriptionToken">Custom description translation token</param>
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static void AddOptionCustomTranslation(BaseOption option, int profileIndex, string profileName,
+            string customNameToken, string customDescriptionToken)
+        {
+            ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
+                profileName, customNameToken, customDescriptionToken);
+        }
+
+        /// <summary>
+        /// Adds an option without custom translation support.
+        /// </summary>
+        /// <param name="option">Option to add</param>
+        /// <param name="profileIndex">Index of the profile to add for</param>
+        /// <param name="profileName">Name of the profile to add for</param>
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static void AddOptionNoTranslation(BaseOption option, int profileIndex, string profileName)
+        {
+            ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
+                profileName);
+        }
+
+
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
         public static BaseOption AddIntOption(int profileIndex, ConfigEntry<int> configEntry, string profileName,
             string customNameToken, string customDescriptionToken, bool restartRequired = false)
         {
             BaseOption option = new IntFieldOption(configEntry, restartRequired);
-            
+
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName, customNameToken, customDescriptionToken);
+                AddOptionCustomTranslation(option, profileIndex, profileName, customNameToken,
+                    customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName);
+                AddOptionNoTranslation(option, profileIndex, profileName);
             }
 
             return option;
@@ -127,20 +156,20 @@ namespace AutoScrapper
             string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
             BaseOption option = new CheckBoxOption(configEntry, requiresRestart);
-            
+
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName, customNameToken, customDescriptionToken);
+                AddOptionCustomTranslation(option, profileIndex, profileName, customNameToken,
+                    customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName);
+                AddOptionNoTranslation(option, profileIndex, profileName);
             }
-            
+
             return option;
         }
+
 
         /// <summary>
         /// Creates a new Enum (Dropdown selection) option for the given config entry.
@@ -151,20 +180,21 @@ namespace AutoScrapper
             where T : Enum
         {
             BaseOption option = new ChoiceOption(configEntry, requiresRestart);
-            
-            if (SupportsCustomTranslation)
+
+            // TODO: This call does not work until Risk of Options 2.8.5 is released.
+            if (false /*SupportsCustomTranslation*/)
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName, customNameToken, customDescriptionToken);
+                AddOptionCustomTranslation(option, profileIndex, profileName, customNameToken,
+                    customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName);
+                AddOptionNoTranslation(option, profileIndex, profileName);
             }
-            
+
             return option;
         }
+
 
         /// <summary>
         /// Creates a new String option for the given config entry.
@@ -174,18 +204,17 @@ namespace AutoScrapper
             string customNameToken, string customDescriptionToken, bool requiresRestart = false)
         {
             BaseOption option = new StringInputFieldOption(configEntry, requiresRestart);
-            
+
             if (SupportsCustomTranslation)
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName, customNameToken, customDescriptionToken);
+                AddOptionCustomTranslation(option, profileIndex, profileName, customNameToken,
+                    customDescriptionToken);
             }
             else
             {
-                ModSettingsManager.AddOption(option, Utility.GetProfileGUID(profileIndex),
-                    profileName);
+                AddOptionNoTranslation(option, profileIndex, profileName);
             }
-            
+
             return option;
         }
     }
