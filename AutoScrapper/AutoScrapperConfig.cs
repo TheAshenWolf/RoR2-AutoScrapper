@@ -26,6 +26,8 @@ namespace AutoScrapper
         // Scraps everything. Priority 1.
         private ConfigEntry<bool> _scrapEverythingConfig;
 
+        private ConfigEntry<bool> _manualModeConfig;
+
         private ConfigEntry<ProfileOverride> _profileOverrideConfig;
         private ConfigEntry<string>[] _profileNamesConfig;
 
@@ -90,6 +92,10 @@ namespace AutoScrapper
 
             _scrapEverythingConfig = mainConfig.Bind("General", "ScrapEverything", false,
                 new ConfigDescription(Language.english.GetLocalizedStringByToken(Tokens.SCRAP_EVERYTHING_DESC)
+                    .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
+
+            _manualModeConfig = mainConfig.Bind("General", "ManualMode", false,
+                new ConfigDescription(Language.english.GetLocalizedStringByToken(Tokens.MANUAL_MODE_DESC)
                     .SanitizeIfLocalized(RiskOfOptionsCompatibility.SupportsCustomTranslation)));
 
             _profileOverrideConfig = mainConfig.Bind("General", "ProfileOverride", ProfileOverride.None,
@@ -265,6 +271,13 @@ namespace AutoScrapper
         /// Gets the config entry for whether all items should be scrapped.
         /// </summary>
         public bool ScrapEverything => _scrapEverythingConfig.Value;
+
+        /// <summary>
+        /// Returns whether the scrapper should run in manual mode.
+        /// If enabled, user has to click a button inside the scrapper UI to scrap all according to
+        /// their filters.
+        /// </summary>
+        public bool ManualMode => _manualModeConfig.Value;
 
         /// <summary>
         /// The first index - 0, is always the main config.

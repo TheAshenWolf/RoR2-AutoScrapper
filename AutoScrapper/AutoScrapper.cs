@@ -77,7 +77,7 @@ namespace AutoScrapper
             GameObject interactable)
         {
            // Ignore if the mod is disabled
-            if (!config.ModEnabled)
+            if (!config.ModEnabled || config.ManualMode)
             {
                 orig(self, interactable);
                 return;
@@ -148,6 +148,31 @@ namespace AutoScrapper
             // Open the scrapper as normal.
             orig(self, interactable);
         }
+
+
+        /// <summary>
+        /// Called when the Scrapper UI is opened.
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        /// <param name="networkUIPromptController"></param>
+        /// <param name="user"></param>
+        /// <param name="cameraRigController"></param>
+        [Client]
+        private void PickupPickerPanel_OnDisplayBegin(On.RoR2.PickupPickerController.orig_OnDisplayBegin orig,
+            RoR2.PickupPickerController self, NetworkUIPromptController networkUIPromptController,
+            LocalUser user, CameraRigController cameraRigController)
+        {
+            if (!config.ModEnabled || !self.name.StartsWith("Scrapper"))
+            {
+                orig(self, networkUIPromptController, user, cameraRigController);
+                return;
+            }
+
+            // TODO: Duplicate the close button visuals and rebind it to scrap items.
+            // We might need to close the scrapper as well, as it probably doesn't update the UI properly.
+        }
+
 
         /// <summary>
         /// Scraps given item in the player's inventory.

@@ -31,5 +31,7 @@ namespace AutoScrapper
         public const string CATEGORY_GREEN_ITEMS = "AUTO_SCRAPPER_CATEGORY_GREEN_ITEMS";
         public const string CATEGORY_RED_ITEMS = "AUTO_SCRAPPER_CATEGORY_RED_ITEMS";
         public const string CATEGORY_YELLOW_ITEMS = "AUTO_SCRAPPER_CATEGORY_YELLOW_ITEMS";
+        public const string MANUAL_MODE = "AUTO_SCRAPPER_MANUAL_MODE";
+        public const string MANUAL_MODE_DESC = "AUTO_SCRAPPER_MANUAL_MODE_DESC";
     }
 }

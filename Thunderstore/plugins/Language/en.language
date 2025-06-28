@@ -29,5 +29,7 @@
     "AUTO_SCRAPPER_CATEGORY_GREEN_ITEMS": "<color=#00FF00>Green Items</color>",
     "AUTO_SCRAPPER_CATEGORY_RED_ITEMS": "<color=#FF0000>Red Items</color>",
     "AUTO_SCRAPPER_CATEGORY_YELLOW_ITEMS": "<color=#FFFF00>Yellow Items</color>",
+    "AUTO_SCRAPPER_MANUAL_MODE": "Manual Mode",
+    "AUTO_SCRAPPER_MANUAL_MODE_DESC": "In manual mode, the scrapper won't automatically scrap items. Instead, you have to click a button inside the scrapper UI.",
     }
 }
