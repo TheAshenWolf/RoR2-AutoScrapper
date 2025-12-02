@@ -1,14 +1,14 @@
 {
   "name": "AutoScrapper",
   "author": "TheAshenWolf",
-  "version_number": "0.3.0",
+  "version_number": "0.4.0",
   "website_url": "https://github.com/TheAshenWolf/RoR2-AutoScrapper",
   "description": "Automatically scrap items based on pre-selected item limits on each scrapper interaction. Risk of Options is not required, but highly recommended.",
   "dependencies": [
     "bbepis-BepInExPack-5.4.2117",
-    "RiskofThunder-HookGenPatcher-1.2.5",
-    "RiskofThunder-R2API_Items-1.0.4",
-    "RiskofThunder-R2API_Language-1.0.1",
-    "RiskofThunder-R2API_Networking-1.0.3"
+    "RiskofThunder-HookGenPatcher-1.2.9",
+    "RiskofThunder-R2API_Items-1.0.7",
+    "RiskofThunder-R2API_Language-1.1.0",
+    "RiskofThunder-R2API_Networking-1.0.4"
   ]
 }
