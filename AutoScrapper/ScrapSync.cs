@@ -108,18 +108,18 @@ namespace AutoScrapper
                 // We have to go backwards, as Removing an item actually removes it from the array.
                 // This is not exactly performance friendly, but it works.
                 // Sadly, we cannot really change that.
-                inventory.RemoveItem(itemId, itemCount);
+                inventory.RemoveItemPermanent(itemId, itemCount);
             }
 
             // Add scrap
             if (report.white > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapWhite.itemIndex, report.white);
+                inventory.GiveItemPermanent(RoR2Content.Items.ScrapWhite.itemIndex, report.white);
             if (report.green > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapGreen.itemIndex, report.green);
+                inventory.GiveItemPermanent(RoR2Content.Items.ScrapGreen.itemIndex, report.green);
             if (report.red > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapRed.itemIndex, report.red);
+                inventory.GiveItemPermanent(RoR2Content.Items.ScrapRed.itemIndex, report.red);
             if (report.yellow > 0)
-                inventory.GiveItem(RoR2Content.Items.ScrapYellow.itemIndex, report.yellow);
+                inventory.GiveItemPermanent(RoR2Content.Items.ScrapYellow.itemIndex, report.yellow);
 
             // Report the results to the chat
             Utility.ReportResults(localBody.GetUserName(), report);

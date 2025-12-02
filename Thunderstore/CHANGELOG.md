@@ -1,3 +1,6 @@
+### AutoScrapper 0.4.0
+- Updated mod for the Alloyed Collective DLC
+
 ### AutoScrapper 0.3.0
 - Added the option to scrap all items without changing the individual item limits
 - Added profiles - now you can save up to four different configurations (you can name these) and switch between them on the fly
