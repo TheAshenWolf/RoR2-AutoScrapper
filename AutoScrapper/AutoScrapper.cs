@@ -110,7 +110,7 @@ namespace AutoScrapper
                     // itemAcquisitionOrder tells us which items we need to check.
                     // By using GetItemCount, we can check how many items of the given type we have.
                     ItemIndex itemId = inventory.itemAcquisitionOrder[i];
-                    int itemCount = inventory.GetItemCount(itemId);
+                    int itemCount = inventory.GetItemCountPermanent(itemId);
 
                     // Trying to scrap 0 of an item could cause issues; we prevent that by skipping
                     if (itemCount == 0)
